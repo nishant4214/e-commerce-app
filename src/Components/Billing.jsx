@@ -156,6 +156,7 @@ const AddBillingForm = () => {
   const calculateSGST =  calculateTotal * 0.09;
   const calculateCGST = calculateTotal * 0.09;
   const grandTotal = Number(calculateTotal)+Number(calculateSGST.toFixed(2))+Number(calculateCGST.toFixed(2));
+  const CurrentDate = new Date().toLocaleString();
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
       <Typography variant="h6" gutterBottom>
@@ -231,11 +232,15 @@ const AddBillingForm = () => {
       {purchasedItems.length > 0 && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6" gutterBottom>
-            Purchased Items
+            Billing Details
           </Typography>
           <TableContainer component={Paper} id="print-table">
             <Table>
               <TableHead>
+                <TableRow>
+                  <TableCell colSpan={2} align="left"><strong>Date & Time:</strong></TableCell>
+                  <TableCell colSpan={3} align="left"><strong></strong>{CurrentDate}</TableCell>
+                </TableRow>
                 <TableRow>
                   <TableCell colSpan={2} align="left"><strong>Name:</strong></TableCell>
                   <TableCell colSpan={3} align="left"><strong></strong>{bill.customerName}</TableCell>
@@ -274,20 +279,20 @@ const AddBillingForm = () => {
               </TableBody>
               <TableFooter>
                 <TableRow>
-                  <TableCell colSpan={4} align="right"><strong>Total:</strong></TableCell>
-                  <TableCell align="right"><strong>{calculateTotal.toFixed(2)} INR</strong></TableCell>
+                  <TableCell colSpan={4} align="right"><strong>Sub Total:</strong></TableCell>
+                  <TableCell align="right"><strong>{calculateTotal.toFixed(2)}</strong></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={4} align="right"><strong>SGST (9%):</strong></TableCell>
-                  <TableCell align="right"><strong>{calculateSGST.toFixed(2)} INR</strong></TableCell>
+                  <TableCell align="right"><strong>{calculateSGST.toFixed(2)}</strong></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={4} align="right"><strong>CGST (9%):</strong></TableCell>
-                  <TableCell align="right"><strong>{calculateCGST.toFixed(2)} INR</strong></TableCell>
+                  <TableCell align="right"><strong>{calculateCGST.toFixed(2)}</strong></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={4} align="right"><strong>Grand Total:</strong></TableCell>
-                  <TableCell align="right"><strong>{grandTotal.toFixed(2)} INR</strong></TableCell>
+                  <TableCell align="right"><strong>{grandTotal.toFixed(2)}</strong></TableCell>
                 </TableRow>
               </TableFooter>
             </Table>
