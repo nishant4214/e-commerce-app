@@ -10,12 +10,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const getAllInventory = async () => {
     const { data: inventory, error } =  await supabase
     .from('inventory')
-    .select(`
-      *,
-      products (
-        name
-      )
-    `);
+    .select('*, products(id, name, price)')
+
     console.log(inventory);
     if (error) {
         console.error('Error fetching products:', error.message);

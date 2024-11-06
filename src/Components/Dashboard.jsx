@@ -20,7 +20,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {  Routes, Route } from 'react-router-dom';
 import AddProductForm from './AddProductForm';
 import AddInventoryForm from './Inventory';
-
+import AddBillingForm from './Billing';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -129,7 +129,8 @@ export default function Dashboard() {
           <Routes>
               <Route path="/add-product" element={<AddProductForm />} />
               <Route path="/manage-inventory" element={<AddInventoryForm />} />
-              {/* Other routes can be added here */}P
+              <Route path="/billing" element={<AddBillingForm />} />
+              {/* Other routes can be added here */}
           </Routes>
       </Box>
     </Box>
