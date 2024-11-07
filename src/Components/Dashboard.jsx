@@ -16,17 +16,23 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate,useLocation  } from 'react-router-dom';
 import {  Routes, Route } from 'react-router-dom';
 import AddProductForm from './AddProductForm';
 import AddInventoryForm from './Inventory';
 import AddBillingForm from './Billing';
+import getInventoryCount from '../netlify/getInventoryCount';
+import getProductCount from '../netlify/getProductCount';
+
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
+  const [productCount, setProductCount] = React.useState(0);
+  const [inventoryCount, setInventoryCount] = React.useState(0);
   const navigate = useNavigate();
+  const location = useLocation();  // Hook to get the current route
 
   const handleDrawerToggle = () => {
     setOpen(!open);
@@ -44,7 +50,16 @@ export default function Dashboard() {
     setAuth(false);
     navigate('/'); // Redirect to home or login
   };
+  React.useEffect(() => {
+    const fetchCounts = async () => {
+      const productCount = await getProductCount();
+      const inventoryCount = await getInventoryCount();
+      setProductCount(productCount);
+      setInventoryCount(inventoryCount);
+    };
 
+    fetchCounts();
+  }, []); // Empty dependency array so it runs once on mount
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={handleDrawerToggle}>
       <List>
@@ -68,6 +83,7 @@ export default function Dashboard() {
       </List>
     </Box>
   );
+  const showDashboardCountCards = location.pathname === "/Dashboard"; // Only show on dashboard route
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -126,6 +142,20 @@ export default function Dashboard() {
       </Drawer>
       {/* Routing for the Dashboard Content */}
       <Box component="main" sx={{ p: 3 }}>
+        {/* Dashboard Cards for Counts */}
+        {/* Conditionally render dashboard count cards */}
+        {showDashboardCountCards && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 3 }}>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+              <Typography variant="h6">Products</Typography>
+              <Typography variant="h4">{productCount}</Typography>
+            </Box>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+              <Typography variant="h6">Inventory</Typography>
+              <Typography variant="h4">{inventoryCount}</Typography>
+            </Box>
+          </Box>
+        )}
           <Routes>
               <Route path="/add-product" element={<AddProductForm />} />
               <Route path="/manage-inventory" element={<AddInventoryForm />} />

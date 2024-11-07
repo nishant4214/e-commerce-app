@@ -72,7 +72,13 @@ const AddInventoryForm = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
+    <Box component="form" onSubmit={handleSubmit} sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      '& > :not(style)': { m: 1, width: '75ch' },
+
+    }}>
       <Typography variant="h6" gutterBottom>
         Manage Inventory
       </Typography>

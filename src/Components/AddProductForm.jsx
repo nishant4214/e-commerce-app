@@ -37,7 +37,7 @@ const AddProductForm = () => {
 
     setProduct({ name: '', description: '', price: '', image_url: '' }); // Reset form
     const fetchedProducts = await getAllProducts(); 
-    setProducts(fetchedProducts);
+    setProducts(fetchedProducts.products);
   };
 
   const handleEdit = (product) => {
@@ -45,7 +45,13 @@ const AddProductForm = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
+    <Box component="form" onSubmit={handleSubmit} sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      '& > :not(style)': { m: 1, width: '75ch' },
+
+    }}>
       <Typography variant="h6" gutterBottom>
         {product.id ? 'Edit Product' : 'Add New Product'}
       </Typography>
@@ -96,11 +102,15 @@ const AddProductForm = () => {
         Product List
       </Typography>
       <List>
-        {products.map((prod) => (
-          <ListItem button key={prod.id} onClick={() => handleEdit(prod)}>
-            <ListItemText primary={prod.name} secondary={`Price: ${prod.price} INR`} />
-          </ListItem>
-        ))}
+      {Array.isArray(products) && products.length > 0 ? (
+          products.map((prod) => (
+            <ListItem button key={prod.id} onClick={() => handleEdit(prod)}>
+              <ListItemText primary={prod.name} secondary={`Price: ${prod.price} INR`} />
+            </ListItem>
+          ))
+        ) : (
+          <Typography>No products available.</Typography>  // Show a fallback message if no products
+        )}
       </List>
     </Box>
   );
