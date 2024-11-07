@@ -3,17 +3,16 @@ import './App.css';
 import Login from './Components/Login';
 import Dashboard from './Components/Dashboard';
 import SignUp from './Components/SignUp';
-import AddProduct from './Components/AddProductForm';
 import 'process';
 
 function App() {
   return (
     <div className="App">
-      <Router>
+      <Router basename="/e-commerce-app">
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/SignUp" element={<SignUp />} />
-          <Route path="/*" element={<Dashboard />} /> 
+          <Route path="/Dashboard/*" element={<Dashboard />} /> 
         </Routes>
       </Router>
     </div>

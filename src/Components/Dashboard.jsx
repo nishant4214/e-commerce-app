@@ -49,10 +49,10 @@ export default function Dashboard() {
     <Box sx={{ width: 250 }} role="presentation" onClick={handleDrawerToggle}>
       <List>
         {[
-          { text: 'Products', path: '/add-product' }, // Correct path
-          { text: 'Inventory', path: '/manage-inventory' },
-          { text: 'Billing', path: '/billing' },
-          { text: 'Reports', path: '/reports' },
+          { text: 'Products', path: './add-product' }, // Correct path
+          { text: 'Inventory', path: './manage-inventory' },
+          { text: 'Billing', path: './billing' },
+          { text: 'Reports', path: './reports' },
         ].map((item, index) => (
           <ListItem key={item.text} disablePadding>
             <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
