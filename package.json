@@ -1,5 +1,6 @@
 {
   "homepage": "https://nishant4214.github.io/e-commerce-app/",
+  "name": "e-commerce-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -12,6 +13,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "buffer": "^6.0.3",
     "cors": "^2.8.5",
