@@ -61,7 +61,20 @@ export default function Dashboard() {
     fetchCounts();
   }, []); // Empty dependency array so it runs once on mount
   const DrawerList = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={handleDrawerToggle}>
+    <Box 
+  sx={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '100%', // Make sure the Box takes full width on mobile
+    '& > :not(style)': { m: 1, width: '75ch' }, // Default width
+    '@media (max-width: 600px)': {
+      '& > :not(style)': { width: '90%' }, // Change width for smaller screens (mobile)
+    },
+  }}
+  role="presentation" 
+  onClick={handleDrawerToggle}
+>
       <List>
         {[
           { text: 'Products', path: './add-product' }, // Correct path

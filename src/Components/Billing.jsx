@@ -162,8 +162,11 @@ const AddBillingForm = () => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      '& > :not(style)': { m: 1, width: '75ch' },
-
+      width: '100%', // Make sure the Box takes full width on mobile
+      '& > :not(style)': { m: 1, width: '75ch' }, // Default width
+      '@media (max-width: 600px)': {
+        '& > :not(style)': { width: '90%' }, // Change width for smaller screens (mobile)
+      },
     }}>
       <Typography variant="h6" gutterBottom>
         Customer Details
