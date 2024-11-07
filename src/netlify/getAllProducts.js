@@ -15,5 +15,4 @@ const getAllProducts = async () => {
     return {products};
 };
 
-// Exporting getAllProducts as default
 export default getAllProducts;
