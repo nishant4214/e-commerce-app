@@ -41,7 +41,9 @@ const loginUser = async (email, password) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),  // Sending the login credentials to the server
+        body: JSON.stringify({ email, password }),
+        credentials: 'include', // Allow cookies to be sent with the request
+
       });
   
       // Parse the response JSON
