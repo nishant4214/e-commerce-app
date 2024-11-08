@@ -46,7 +46,7 @@ const loginUser = async (email, password) => {
   
       // Parse the response JSON
       const data = await response.json();
-  
+      console.log(response)
       // Check if the response was successful (i.e., the API returns success: true)
       if (response.ok && data.success) {
         return data;  // Return the response object, which contains the token and user info
