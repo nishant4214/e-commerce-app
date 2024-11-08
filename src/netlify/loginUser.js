@@ -43,7 +43,7 @@ const loginUser = async (email, password) => {
         },
         body: JSON.stringify({ email, password }),  // Sending the login credentials to the server
       });
-  
+      
       // Parse the response JSON
       const data = await response.json();
   
