@@ -11,11 +11,32 @@ function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const handleSubmit = async (event) => {
+    event.preventDefault();  // Prevent form submission
+  
+    try {
+      // Call the loginUser function and get the response from the backend
+      const response = await loginUser(email, password);
+      console.log(response)
 
-  const handleSubmit = async (event) =>{
-    event.preventDefault();
-    const userDetails = await loginUser(email, password);
-    userDetails != null ?  navigate('./Dashboard') : alert('Please enter valid user details')
+      // Check if the response is successful
+      if (response && response.success) {
+        const { token, user } = response; // Extract the token and user details from the response
+  
+        // Save the token and user data to sessionStorage
+        sessionStorage.setItem('authToken', token);  // Store the JWT token in sessionStorage
+        sessionStorage.setItem('user', JSON.stringify(user));  // Store the user details (excluding password)
+  
+        // Navigate to the Dashboard (or another page)
+        navigate('./Dashboard');
+      } else {
+        // If login fails, show an alert
+        alert('Please enter valid user details');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('An error occurred while logging in. Please try again later.');
+    }
   };
 
   return (
