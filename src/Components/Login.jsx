@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Button } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import loginUser from '../netlify/loginUser'
 // import registerUser from '../netlify/signUp'
 function Login() {
   const navigate = useNavigate();
@@ -15,32 +15,32 @@ function Login() {
     event.preventDefault(); // Prevent form submission
   
     try {
-      const response = await axios.post(
-        'https://ecommerce-login-api.netlify.app/.netlify/functions/login',
-        {
-          email: email,
-          password: password,
+      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',  // Explicitly set Content-Type as JSON
-          },
-          // Axios automatically doesn't send credentials unless specified
-          // Since you're not using cookies, no need to add `credentials` like in fetch.
-        });
+        body: JSON.stringify({ email, password }),
 
-      console.log(response);
+      });
+
+      // const response = await loginUser(loginUser);
+      // console.log(response);
   
-      // Check if the response is OK (status code 200)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // // Check if the response is OK (status code 200)
+      // if (!response.ok) {
+      //   throw new Error(`HTTP error! status: ${response.status}`);
+      // }
   
       // Parse the response JSON
-      const data = await response.json();
-      console.log('Response data:', data);
+       const data = await response.json();
+      // console.log('Response data:', data);
   
       // Check if the login was successful
+
+      // const data = await loginUser(email,password);
+      console.log(data);
       if (data.success) {
         const { token, user } = data; // Extract the token and user details
   
