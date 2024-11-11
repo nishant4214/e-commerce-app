@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Button } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import loginUser from '../netlify/loginUser'
+import axios from 'axios';
 // import registerUser from '../netlify/signUp'
 function Login() {
   const navigate = useNavigate();
@@ -15,16 +15,19 @@ function Login() {
     event.preventDefault(); // Prevent form submission
   
     try {
-      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          
+      const response = await axios.post(
+        'https://ecommerce-login-api.netlify.app/.netlify/functions/login',
+        {
+          email: email,
+          password: password,
         },
-        body: JSON.stringify({ email, password }),
-        credentials: 'same-origin',  // 'same-origin' means no credentials (cookies, auth tokens) will be sent
-
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',  // Explicitly set Content-Type as JSON
+          },
+          // Axios automatically doesn't send credentials unless specified
+          // Since you're not using cookies, no need to add `credentials` like in fetch.
+        });
 
       console.log(response);
   
