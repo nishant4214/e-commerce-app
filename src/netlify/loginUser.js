@@ -1,37 +1,3 @@
-// import { createClient } from '@supabase/supabase-js';
-// // import GenerateToken from './jwt';
-
-// const supabaseUrl = 'https://wplynhlsjjzczsgembup.supabase.co';
-// const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwbHluaGxzamp6Y3pzZ2VtYnVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyOTUwNzM5MSwiZXhwIjoyMDQ1MDgzMzkxfQ.UOg9HpjHXLIP7s__uKsNI6XJ0_seUQBGK7UhD8nzgZk';
-// const supabase = createClient(supabaseUrl, supabaseKey);
-// const loginUser = async (email, password) => {
-//     // Fetch the user from the database
-//     const { data: users, error } = await supabase
-//         .from('users')
-//         .select('*')
-//         .eq('email', email);
-
-//     if (error || users.length === 0) {
-//         return null;
-//     }
-
-//     const user = users[0];
-
-//     // Compare the hashed password with the provided password
-//     const isMatch = password === user.password ? true : false;
-    
-//     if (!isMatch) {
-//         return null;
-//     }
-//     // // Generate JWT token
-//     // const Token = GenerateToken(user.email)
-
-    
-//     return { user}; // Return user details (not the password)
-// };
-
-
-// export default loginUser;
 
 const loginUser = async (email, password) => {
     try {
@@ -43,12 +9,13 @@ const loginUser = async (email, password) => {
         },
         body: JSON.stringify({ email, password }),
         credentials: 'include', // Allow cookies to be sent with the request
-
+        mode: 'no-cors',  // This bypasses CORS but you can't access the response body
       });
   
       // Parse the response JSON
       const data = await response.json();
-      console.log(response)
+      console.log(data)
+
       // Check if the response was successful (i.e., the API returns success: true)
       if (response.ok && data.success) {
         return data;  // Return the response object, which contains the token and user info

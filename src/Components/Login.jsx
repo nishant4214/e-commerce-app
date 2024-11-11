@@ -12,25 +12,40 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const handleSubmit = async (event) => {
-    event.preventDefault();  // Prevent form submission
+    event.preventDefault(); // Prevent form submission
   
     try {
-      // Call the loginUser function and get the response from the backend
-      const response = await loginUser(email, password);
-      console.log(response)
+      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // Check if the response is successful
-      if (response && response.success) {
-        const { token, user } = response; // Extract the token and user details from the response
+      console.log(response);
   
-        // Save the token and user data to sessionStorage
-        sessionStorage.setItem('authToken', token);  // Store the JWT token in sessionStorage
-        sessionStorage.setItem('user', JSON.stringify(user));  // Store the user details (excluding password)
+      // Check if the response is OK (status code 200)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      // Parse the response JSON
+      const data = await response.json();
+      console.log('Response data:', data);
+  
+      // Check if the login was successful
+      if (data.success) {
+        const { token, user } = data; // Extract the token and user details
+  
+        // Store the token and user details in sessionStorage
+        sessionStorage.setItem('authToken', token);
+        sessionStorage.setItem('user', JSON.stringify(user));
   
         // Navigate to the Dashboard (or another page)
         navigate('./Dashboard');
       } else {
-        // If login fails, show an alert
         alert('Please enter valid user details');
       }
     } catch (error) {
@@ -38,7 +53,6 @@ function Login() {
       alert('An error occurred while logging in. Please try again later.');
     }
   };
-
   return (
     <Container maxWidth="sm">
       <Box
