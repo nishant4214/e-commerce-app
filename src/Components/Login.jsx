@@ -22,6 +22,8 @@ function Login() {
           
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'same-origin',  // 'same-origin' means no credentials (cookies, auth tokens) will be sent
+
       });
 
       console.log(response);
