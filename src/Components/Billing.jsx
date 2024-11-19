@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Button, Box, Typography,TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
 import getAllProducts from '../netlify/getAllInventory';
+import { updateInventoryByProductId } from '../netlify/updateInventoryByProductId';
 import AuthContext from '../AuthContext';
 
 const AddBillingForm = () => {
@@ -69,12 +70,12 @@ const AddBillingForm = () => {
     }
   };
   
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!authToken) {
       throw new Error('No authentication token available');
     }
-    console.log(bill)
     if (!bill.customerName || !bill.contactNumber || !bill.productId || Number(bill.quantity) <= 0) {
       console.log('Form validation failed');
       return;
@@ -152,6 +153,7 @@ const AddBillingForm = () => {
     }
   };
 
+ 
   const handlePrint = () => {
     if (!authToken) {
       throw new Error('No authentication token available');
@@ -162,6 +164,29 @@ const AddBillingForm = () => {
     document.body.innerHTML = printContent;
     window.print();
     document.body.innerHTML = originalContent;
+  };
+  
+  const handleFinalizeBill = async () => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
+  
+    console.log(purchasedItems);
+  
+    // Sequentially update inventory for each purchased item
+    for (const item of purchasedItems) {
+      try {
+        const result = await updateInventoryByProductId(item.id, Number(item.quantity));
+        if (result) {
+          console.log(`Inventory updated for product ${item.productId}`);
+        }
+        document.getElementById('PrintBtn').style.display = 'block';
+        document.getElementById('FinalizeBtn').style.display = 'none';
+        document.getElementById('form-bill-details').style.display = 'none';
+      } catch (error) {
+        console.error(`Error updating inventory for product ${item.productId}:`, error);
+      }
+    }
   };
   
   
@@ -183,6 +208,7 @@ const AddBillingForm = () => {
     return <p>You are not logged in.</p>;
   }
   return (
+   
     <Box component="form" onSubmit={handleSubmit} sx={{
       display: 'flex',
       flexDirection: 'column',
@@ -193,6 +219,7 @@ const AddBillingForm = () => {
         '& > :not(style)': { width: '90%' }, // Change width for smaller screens (mobile)
       },
     }}>
+     <div id="form-bill-details">
       <Typography variant="h6" gutterBottom>
         Customer Details
       </Typography>
@@ -217,7 +244,7 @@ const AddBillingForm = () => {
       <Typography variant="h6" gutterBottom>
         Select Items
       </Typography>
-      <FormControl sx={{ m: 1, width: 1200 }}>
+      <FormControl sx={{ m: 1, width: 600 }}>
         <InputLabel id="product-select-label">Product</InputLabel>
         <Select
           labelId="product-select-label"
@@ -260,7 +287,7 @@ const AddBillingForm = () => {
       <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
         Add To Bill
       </Button>
-     
+      </div>
 
       {/* Display added items in a Grid2 layout */}
       {purchasedItems.length > 0 && (
@@ -332,13 +359,26 @@ const AddBillingForm = () => {
             </Table>
           </TableContainer>
           <Button
-        variant="contained"
-        color="primary"
-        onClick={handlePrint}
-        sx={{ mt: 2 }}
-      >
-        Print Bill
-      </Button>
+            variant="contained"
+            color="primary"
+            onClick={handlePrint}
+            sx={{ mt: 2 }}
+            style={{display:'none'}}
+            id="PrintBtn"
+          >
+            Print Bill
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleFinalizeBill}
+            sx={{ mt: 2 }}
+            style={{display:'block'}}
+            id="FinalizeBtn"
+          >
+            Finalize
+          </Button>
+
         </Box>
       )}
     </Box>

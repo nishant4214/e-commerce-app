@@ -12,7 +12,6 @@ const getAllInventory = async () => {
     .from('inventory')
     .select('*, products(id, name, price)')
 
-    console.log(inventory);
     if (error) {
         console.error('Error fetching products:', error.message);
         return [];
