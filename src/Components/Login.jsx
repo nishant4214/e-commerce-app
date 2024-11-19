@@ -5,8 +5,6 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Button } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import loginUser from '../netlify/loginUser'
-// import registerUser from '../netlify/signUp'
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -15,32 +13,24 @@ function Login() {
     event.preventDefault(); // Prevent form submission
   
     try {
-      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/login', {
+      const response = await fetch('/.netlify/functions/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          
         },
         body: JSON.stringify({ email, password }),
-
       });
-
-      // const response = await loginUser(loginUser);
-      // console.log(response);
   
-      // // Check if the response is OK (status code 200)
-      // if (!response.ok) {
-      //   throw new Error(`HTTP error! status: ${response.status}`);
-      // }
+      // Check if the response is OK (status code 200)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
   
       // Parse the response JSON
-       const data = await response.json();
-      // console.log('Response data:', data);
+      const data = await response.json();
+      console.log(data); // Log the response data
   
       // Check if the login was successful
-
-      // const data = await loginUser(email,password);
-      console.log(data);
       if (data.success) {
         const { token, user } = data; // Extract the token and user details
   
@@ -49,7 +39,7 @@ function Login() {
         sessionStorage.setItem('user', JSON.stringify(user));
   
         // Navigate to the Dashboard (or another page)
-        navigate('./Dashboard');
+        navigate('/dashboard'); // Use correct path for your Dashboard
       } else {
         alert('Please enter valid user details');
       }

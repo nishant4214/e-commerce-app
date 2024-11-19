@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Button, Box, Typography, List, ListItem, ListItemText } from '@mui/material';
 import getAllProducts from '../netlify/getAllProducts';
 import addProduct from '../netlify/addProduct';
 import updateProduct from '../netlify/updateProduct';
+import AuthContext from '../AuthContext';
+
 const AddProductForm = () => {
   const [product, setProduct] = useState({
     name: '',
@@ -11,8 +13,14 @@ const AddProductForm = () => {
     image_url: '',
   });
   const [products, setProducts] = useState([]);
+  const { authToken } = useContext(AuthContext);
+  
 
   useEffect(() => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
+
     const fetchProducts = async () => {
       const fetchedProducts = await getAllProducts();
       setProducts(fetchedProducts.products);
@@ -20,7 +28,7 @@ const AddProductForm = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [authToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,6 +36,10 @@ const AddProductForm = () => {
   };
 
   const handleSubmit = async (e) => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
+
     e.preventDefault();
     if (product.id) {
       await updateProduct(product);
@@ -41,8 +53,15 @@ const AddProductForm = () => {
   };
 
   const handleEdit = (product) => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     setProduct(product);
   };
+
+  if (!authToken) {
+    return <p>You are not logged in.</p>;
+  }
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{

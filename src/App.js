@@ -4,9 +4,12 @@ import Login from './Components/Login';
 import Dashboard from './Components/Dashboard';
 import SignUp from './Components/SignUp';
 import 'process';
+import { AuthProvider } from './AuthContext';
 
 function App() {
   return (
+    <AuthProvider>
+
     <div className="App">
       <Router basename="/e-commerce-app">
         <Routes>
@@ -16,6 +19,7 @@ function App() {
         </Routes>
       </Router>
     </div>
+    </AuthProvider>
   );
 }
 

@@ -23,7 +23,8 @@ import AddInventoryForm from './Inventory';
 import AddBillingForm from './Billing';
 import getInventoryCount from '../netlify/getInventoryCount';
 import getProductCount from '../netlify/getProductCount';
-
+import { useContext } from 'react';
+import AuthContext from '../AuthContext';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -31,6 +32,9 @@ export default function Dashboard() {
   const [open, setOpen] = React.useState(false);
   const [productCount, setProductCount] = React.useState(0);
   const [inventoryCount, setInventoryCount] = React.useState(0);
+  // const { authToken, user, logout } = useContext(AuthContext);
+  const { authToken } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const location = useLocation();  // Hook to get the current route
 
@@ -96,8 +100,10 @@ export default function Dashboard() {
       </List>
     </Box>
   );
-  const showDashboardCountCards = location.pathname === "/Dashboard"; // Only show on dashboard route
-
+   const showDashboardCountCards = location.pathname === "/dashboard"; // Only show on dashboard route
+  if (!authToken) {
+     alert('Not authenticated');  navigate('/'); return null;
+  }
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">

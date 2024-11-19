@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
 import getAllProducts from '../netlify/getAllProducts';
 import getAllInventory from '../netlify/getAllInventory';
@@ -15,6 +15,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import AuthContext from '../AuthContext';
 
 const AddInventoryForm = () => {
   const [product, setProduct] = useState({
@@ -25,8 +26,12 @@ const AddInventoryForm = () => {
   const [inventory, setAllInventory] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [inventoryId, setInventoryId] = useState(null);
+  const { authToken } = useContext(AuthContext);
 
   useEffect(() => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     const fetchProductsAndInventory = async () => {
       const productsResponse = await getAllProducts();
       const inventoryResponse = await getAllInventory();
@@ -35,7 +40,7 @@ const AddInventoryForm = () => {
     };
 
     fetchProductsAndInventory();
-  }, [inventory]);
+  }, [inventory, authToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,6 +49,9 @@ const AddInventoryForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     if (inventoryId) {
       await updateInventory(inventoryId, product.description, product.quantity);
     } else {
@@ -70,6 +78,10 @@ const AddInventoryForm = () => {
     setSelectedProduct('');
     setInventoryId(null);
   };
+
+  if (!authToken) {
+    return <p>You are not logged in.</p>;
+  }
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Button, Box, Typography,TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
 import getAllProducts from '../netlify/getAllInventory';
+import AuthContext from '../AuthContext';
 
 const AddBillingForm = () => {
   // Initialize the state with default values
@@ -15,17 +16,25 @@ const AddBillingForm = () => {
   const [inventory, setAllProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [purchasedItems, setPurchasedItems] = useState([]);
-
+  const { authToken } = useContext(AuthContext);
+  
   useEffect(() => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     const fetchProducts = async () => {
       const productsResponse = await getAllProducts();
       setAllProducts(productsResponse.inventory);
     };
 
     fetchProducts();
-  }, []);
+  }, [authToken]);
 
   useEffect(() => {
+
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     const selectedProductObj = inventory.find((product) => product.id === selectedProduct);
     if (selectedProductObj) {
       setBill((prevBill) => ({
@@ -33,7 +42,7 @@ const AddBillingForm = () => {
         price: selectedProductObj.price || '', // Ensure price is always a string
       }));
     }
-  }, [selectedProduct, inventory]);
+  }, [selectedProduct, inventory, authToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,6 +55,9 @@ const AddBillingForm = () => {
   
     // Set the price to the selected product's price
     const selectedProductObj = inventory.find((products) => products.products.id === productId);
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     if (selectedProductObj) {
       setSelectedProduct(productId);
       setBill((prevBill) => ({
@@ -59,6 +71,9 @@ const AddBillingForm = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     console.log(bill)
     if (!bill.customerName || !bill.contactNumber || !bill.productId || Number(bill.quantity) <= 0) {
       console.log('Form validation failed');
@@ -138,6 +153,9 @@ const AddBillingForm = () => {
   };
 
   const handlePrint = () => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     const printContent = document.getElementById("print-table").innerHTML; 
     const originalContent = document.body.innerHTML;
     
@@ -148,6 +166,9 @@ const AddBillingForm = () => {
   
   
   const handleRemoveItem = (itemId) => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
     const updatedItems = purchasedItems.filter((item) => item.id !== itemId);
     setPurchasedItems(updatedItems);
   };
@@ -157,6 +178,10 @@ const AddBillingForm = () => {
   const calculateCGST = calculateTotal * 0.09;
   const grandTotal = Number(calculateTotal)+Number(calculateSGST.toFixed(2))+Number(calculateCGST.toFixed(2));
   const CurrentDate = new Date().toLocaleString();
+
+  if (!authToken) {
+    return <p>You are not logged in.</p>;
+  }
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{
       display: 'flex',
