@@ -11,13 +11,14 @@ import registerUser from '../netlify/signUp'
 function SignUp() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [mobileNo, setMobileNo] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
 
 
   const handleSubmit = async (event) =>{
     event.preventDefault();
-    const userDetails = await registerUser(email, password,fullName);
+    const userDetails = await registerUser(email, password,fullName,mobileNo);
     userDetails != null ?  navigate('../') : alert('Please enter valid user details')
   };
 
@@ -44,6 +45,9 @@ function SignUp() {
         />
         <TextField id="username" label="Username" variant="outlined"
             onChange={(e) => setEmail(e.target.value)}
+        />
+         <TextField id="mobileNo" label="mobileNo" variant="outlined"
+            onChange={(e) => setMobileNo(e.target.value)}
         />
         <TextField
           id="password"

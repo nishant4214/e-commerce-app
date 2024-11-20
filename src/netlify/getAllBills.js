@@ -6,17 +6,19 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const getAllInventory = async () => {
-    const { data: inventory, error } =  await supabase
-    .from('inventory')
-    .select('*, products(id, name, price)')
+const getAllBills = async () => {
+    const { data: bills, error } = await supabase
+    .from('billing')
+    .select('id, customer_id, bill_document, created_at, users(id, full_name, email)');  // Join billing with users table
+
+
 
     if (error) {
-        console.error('Error fetching products:', error.message);
+        console.error('Error fetching bills:', error.message);
         return [];
     }
-    return { inventory};
+    return { bills};
 };
 
 // Exporting getAllProducts as default
-export default getAllInventory;
+export default getAllBills;

@@ -22,7 +22,9 @@ import AddProductForm from './AddProductForm';
 import AddInventoryForm from './Inventory';
 import AddBillingForm from './Billing';
 import getInventoryCount from '../netlify/getInventoryCount';
+import getTotalTodaysSales from '../netlify/getTodaysSells';
 import getProductCount from '../netlify/getProductCount';
+import BillingList from './BillingList';
 import { useContext } from 'react';
 import AuthContext from '../AuthContext';
 
@@ -32,6 +34,7 @@ export default function Dashboard() {
   const [open, setOpen] = React.useState(false);
   const [productCount, setProductCount] = React.useState(0);
   const [inventoryCount, setInventoryCount] = React.useState(0);
+  const [totalTodaysSales, setTotalTodaysSales] = React.useState(0);
   // const { authToken, user, logout } = useContext(AuthContext);
   const { authToken } = useContext(AuthContext);
 
@@ -58,8 +61,10 @@ export default function Dashboard() {
     const fetchCounts = async () => {
       const productCount = await getProductCount();
       const inventoryCount = await getInventoryCount();
+      const totalTodaysSalesAmount = await getTotalTodaysSales();
       setProductCount(productCount);
       setInventoryCount(inventoryCount);
+      setTotalTodaysSales(totalTodaysSalesAmount);
     };
 
     fetchCounts();
@@ -85,6 +90,7 @@ export default function Dashboard() {
           { text: 'Inventory', path: './manage-inventory' },
           { text: 'Billing', path: './billing' },
           { text: 'Reports', path: './reports' },
+          { text: 'All Bills', path: './bill-list' },
         ].map((item, index) => (
           <ListItem key={item.text} disablePadding>
             <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -173,12 +179,17 @@ export default function Dashboard() {
               <Typography variant="h6">Inventory</Typography>
               <Typography variant="h4">{inventoryCount}</Typography>
             </Box>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+              <Typography variant="h6">Today's Sales</Typography>
+              <Typography variant="h4">{totalTodaysSales} INR</Typography>
+            </Box>
           </Box>
         )}
           <Routes>
               <Route path="/add-product" element={<AddProductForm />} />
               <Route path="/manage-inventory" element={<AddInventoryForm />} />
               <Route path="/billing" element={<AddBillingForm />} />
+              <Route path="/bill-list" element={<BillingList />} />
               {/* Other routes can be added here */}
           </Routes>
       </Box>

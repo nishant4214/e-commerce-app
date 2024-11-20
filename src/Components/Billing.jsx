@@ -3,20 +3,26 @@ import { TextField, Button, Box, Typography,TableFooter, Table, TableBody, Table
 import getAllProducts from '../netlify/getAllInventory';
 import { updateInventoryByProductId } from '../netlify/updateInventoryByProductId';
 import AuthContext from '../AuthContext';
+import registerUser from '../netlify/signUp';
+import addBill from '../netlify/addBill';
+import html2canvas from 'html2canvas';
 
 const AddBillingForm = () => {
   // Initialize the state with default values
   const [bill, setBill] = useState({
     customerName: '',
     contactNumber: '',
+    email : '',
     price: '', // Default empty string for price
     quantity: 0, // Default to 0 for quantity
     productId: '', // Default empty string for productId
+    grandTotal: 0,
   });
   
   const [inventory, setAllProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [purchasedItems, setPurchasedItems] = useState([]);
+
   const { authToken } = useContext(AuthContext);
   
   useEffect(() => {
@@ -76,7 +82,7 @@ const AddBillingForm = () => {
     if (!authToken) {
       throw new Error('No authentication token available');
     }
-    if (!bill.customerName || !bill.contactNumber || !bill.productId || Number(bill.quantity) <= 0) {
+    if (!bill.customerName || !bill.contactNumber || !bill.email || !bill.productId || Number(bill.quantity) <= 0) {
       console.log('Form validation failed');
       return;
     }
@@ -143,9 +149,11 @@ const AddBillingForm = () => {
       setBill({
         customerName: bill.customerName,
         contactNumber: bill.contactNumber,
+        email: bill.email,
         price: '',
         quantity: 0,
         productId: '',
+        grandTotal: 0,
       });
       setSelectedProduct('');
     } catch (error) {
@@ -153,7 +161,6 @@ const AddBillingForm = () => {
     }
   };
 
- 
   const handlePrint = () => {
     if (!authToken) {
       throw new Error('No authentication token available');
@@ -172,10 +179,12 @@ const AddBillingForm = () => {
     }
   
     console.log(purchasedItems);
-  
+    const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber);
+    
     // Sequentially update inventory for each purchased item
     for (const item of purchasedItems) {
       try {
+
         const result = await updateInventoryByProductId(item.id, Number(item.quantity));
         if (result) {
           console.log(`Inventory updated for product ${item.productId}`);
@@ -187,9 +196,18 @@ const AddBillingForm = () => {
         console.error(`Error updating inventory for product ${item.productId}:`, error);
       }
     }
+    const table = document.getElementById('print-table');
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const total_amount = bill.grandTotal;
+    // Use html2canvas to render the table as an image
+    html2canvas(table).then(function(canvas) {
+      // Convert canvas to Base64 image string
+      const base64Image = canvas.toDataURL("image/png");
+      addBill(userDetails.id,user.id,base64Image, total_amount)
+    });
+    
   };
-  
-  
+    
   const handleRemoveItem = (itemId) => {
     if (!authToken) {
       throw new Error('No authentication token available');
@@ -202,6 +220,7 @@ const AddBillingForm = () => {
   const calculateSGST =  calculateTotal * 0.09;
   const calculateCGST = calculateTotal * 0.09;
   const grandTotal = Number(calculateTotal)+Number(calculateSGST.toFixed(2))+Number(calculateCGST.toFixed(2));
+  bill.grandTotal = grandTotal;
   const CurrentDate = new Date().toLocaleString();
 
   if (!authToken) {
@@ -237,16 +256,25 @@ const AddBillingForm = () => {
         margin="normal"
         label="Contact Number"
         name="contactNumber"
-        value={bill.contactNumber || ''} // Ensure empty string if undefined
+        value={bill.contactNumber || '+91'} // Ensure empty string if undefined
         onChange={handleChange}
         required
+      />
+      <TextField 
+      fullWidth
+        id="email" 
+        label="Email" 
+        name="email"
+        value={bill.email || ''} // Ensure empty string if undefined
+        onChange={handleChange}
       />
       <Typography variant="h6" gutterBottom>
         Select Items
       </Typography>
-      <FormControl sx={{ m: 1, width: 600 }}>
+      <FormControl sx={{ m: 2, width: 600 }}>
         <InputLabel id="product-select-label">Product</InputLabel>
         <Select
+        fullWidth
           labelId="product-select-label"
           id="product-select"
           value={selectedProduct || ''} // Ensure empty string if undefined
@@ -378,7 +406,6 @@ const AddBillingForm = () => {
           >
             Finalize
           </Button>
-
         </Box>
       )}
     </Box>
