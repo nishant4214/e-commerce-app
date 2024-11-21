@@ -181,7 +181,7 @@ export default function Dashboard() {
             </Box>
             <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
               <Typography variant="h6">Today's Sales</Typography>
-              <Typography variant="h4">{totalTodaysSales} INR</Typography>
+              <Typography variant="h4">{totalTodaysSales.toFixed(2)} INR</Typography>
             </Box>
           </Box>
         )}

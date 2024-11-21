@@ -94,7 +94,7 @@ const AddInventoryForm = () => {
         '& > :not(style)': { width: '90%' }, // Change width for smaller screens (mobile)
       },
     }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h4" gutterBottom>
         Manage Inventory
       </Typography>
       <FormControl sx={{ m: 1, width: 1200 }}>

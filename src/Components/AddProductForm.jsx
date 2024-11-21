@@ -74,7 +74,7 @@ const AddProductForm = () => {
         '& > :not(style)': { width: '90%' }, // Change width for smaller screens (mobile)
       },
     }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h4" gutterBottom>
         {product.id ? 'Edit Product' : 'Add New Product'}
       </Typography>
       <TextField

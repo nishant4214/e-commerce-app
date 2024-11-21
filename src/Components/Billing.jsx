@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, Button, Box, Typography,TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
+import { TextField, Button, Grid2, Box, Typography,TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
 import getAllProducts from '../netlify/getAllInventory';
 import { updateInventoryByProductId } from '../netlify/updateInventoryByProductId';
 import AuthContext from '../AuthContext';
@@ -234,88 +234,118 @@ const AddBillingForm = () => {
       alignItems: 'center',
       width: '100%', // Make sure the Box takes full width on mobile
       '& > :not(style)': { m: 1, width: '75ch' }, // Default width
-      '@media (max-width: 600px)': {
+      '@media (max-width: 1200px)': {
         '& > :not(style)': { width: '90%' }, // Change width for smaller screens (mobile)
       },
     }}>
      <div id="form-bill-details">
-      <Typography variant="h6" gutterBottom>
+     <Typography variant="h4" gutterBottom>
+        Billing
+      </Typography>
+      <Typography variant="h6" gutterBottom align='left'>
         Customer Details
       </Typography>
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Customer Name"
-        name="customerName"
-        value={bill.customerName || ''} // Ensure empty string if undefined
-        onChange={handleChange}
-        required
-      />
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Contact Number"
-        name="contactNumber"
-        value={bill.contactNumber || '+91'} // Ensure empty string if undefined
-        onChange={handleChange}
-        required
-      />
-      <TextField 
-      fullWidth
-        id="email" 
-        label="Email" 
-        name="email"
-        value={bill.email || ''} // Ensure empty string if undefined
-        onChange={handleChange}
-      />
-      <Typography variant="h6" gutterBottom>
+      
+      <Grid2 container spacing={2}>
+        <Grid2 item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Customer Name"
+            name="customerName"
+            value={bill.customerName || ''}
+            onChange={handleChange}
+            required
+          />
+        </Grid2>
+        <Grid2 item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Contact Number"
+            name="contactNumber"
+            value={bill.contactNumber || '+91'}
+            onChange={handleChange}
+            required
+          />
+        </Grid2>
+        <Grid2 item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Email"
+            name="email"
+            value={bill.email || ''}
+            onChange={handleChange}
+          />
+        </Grid2>
+      </Grid2>
+      <Typography variant="h6" gutterBottom align='left'>
         Select Items
       </Typography>
-      <FormControl sx={{ m: 2, width: 600 }}>
-        <InputLabel id="product-select-label">Product</InputLabel>
-        <Select
-        fullWidth
-          labelId="product-select-label"
-          id="product-select"
-          value={selectedProduct || ''} // Ensure empty string if undefined
-          label="Product"
-          onChange={handleProductChange}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {Array.isArray(inventory) && inventory.map((item) => (
-            <MenuItem key={item.products.id} value={item.products.id}>
-              {item.products.name}
+      
+      <Grid2 container spacing={2}>
+        <Grid2 item xs={12} sm={4}>
+          <FormControl fullWidth margin="normal">
+          <InputLabel id="product-select-label">Product</InputLabel>
+          <Select
+            labelId="product-select-label"
+            id="product-select"
+            value={selectedProduct || ''}
+            label="Product"
+            onChange={handleProductChange}
+            size="large"  // Keeps the size small
+            sx={{
+              width: '210px',  // Ensures the Select takes full width
+              height: '50px', // Sets a fixed height
+              fontSize: '0.875rem', // Optional: Controls font size
+              boxSizing: 'border-box', // Ensures padding and border are included in the width/height
+            }}
+          >
+            <MenuItem value="">
+              <em>None</em>
             </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Price"
-        name="price"
-        type="number"
-        value={bill.price || ''} // Ensure empty string if undefined
-        onChange={handleChange}
-        required
-        disabled
-      />
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Quantity"
-        name="quantity"
-        type="number"
-        value={bill.quantity || 0} // Default to 0 if undefined
-        onChange={handleChange}
-        required
-      />
+            {Array.isArray(inventory) && inventory.map((item) => (
+              <MenuItem key={item.products.id} value={item.products.id}>
+                {item.products.name}
+              </MenuItem>
+            ))}
+          </Select>
+          </FormControl>
+        </Grid2>
+
+        <Grid2 item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Price"
+            name="price"
+            type="number"
+            value={bill.price || ''}
+            onChange={handleChange}
+            required
+            disabled
+          />
+        </Grid2>
+
+        <Grid2 item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Quantity"
+            name="quantity"
+            type="number"
+            value={bill.quantity || 0}
+            onChange={handleChange}
+            required
+          />
+        </Grid2>
+      </Grid2>
+
       <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
         Add To Bill
       </Button>
-      </div>
+    </div>
 
       {/* Display added items in a Grid2 layout */}
       {purchasedItems.length > 0 && (

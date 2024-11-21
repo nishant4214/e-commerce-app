@@ -47,11 +47,13 @@ const BillingList = () => {
 
   return (
     <div>
+    <Typography variant="h4" gutterBottom>
+      All Bills
+    </Typography>
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Bill ID</TableCell>
             <TableCell>Customer Name</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Date Time</TableCell>
@@ -61,7 +63,7 @@ const BillingList = () => {
         <TableBody>
           {bills.map((bill) => (
             <TableRow key={bill.id}>
-              <TableCell>{bill.id}</TableCell>
+           
               <TableCell>{bill.users?.full_name}</TableCell>
               <TableCell>{bill.users?.email}</TableCell>
               <TableCell>{bill.created_at}</TableCell>
