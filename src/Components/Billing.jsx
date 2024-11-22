@@ -17,6 +17,7 @@ const AddBillingForm = () => {
     quantity: 0, // Default to 0 for quantity
     productId: '', // Default empty string for productId
     grandTotal: 0,
+    address : ''
   });
   
   const [inventory, setAllProducts] = useState([]);
@@ -149,6 +150,7 @@ const AddBillingForm = () => {
       setBill({
         customerName: bill.customerName,
         contactNumber: bill.contactNumber,
+        address: bill.address,
         email: bill.email,
         price: '',
         quantity: 0,
@@ -178,8 +180,7 @@ const AddBillingForm = () => {
       throw new Error('No authentication token available');
     }
   
-    console.log(purchasedItems);
-    const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber);
+    const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber, bill.address);
     
     // Sequentially update inventory for each purchased item
     for (const item of purchasedItems) {
@@ -279,6 +280,20 @@ const AddBillingForm = () => {
             onChange={handleChange}
           />
         </Grid2>
+        <Grid2 item xs={12} sm={4}>
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Address"
+          name="address"
+          value={bill.address || ''}
+          onChange={handleChange}
+          multiline  // Enable multi-line input
+          rows={4}   // Default number of rows (lines) shown
+          rowsMax={6} // Max number of rows (lines) before the textarea becomes scrollable
+          variant="outlined"
+        />
+        </Grid2>
       </Grid2>
       <Typography variant="h6" gutterBottom align='left'>
         Select Items
@@ -318,7 +333,7 @@ const AddBillingForm = () => {
           <TextField
             fullWidth
             margin="normal"
-            label="Price"
+            label="Price Per Unit"
             name="price"
             type="number"
             value={bill.price || ''}

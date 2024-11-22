@@ -6,16 +6,15 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const updateProduct = async (product) => {
+const changeUserStatus = async (id, status) => {
+    console.log(status)
+    console.log(id)
     const { error } = await supabase
-        .from('products')
+        .from('users')
         .update({
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            image_url: product.image_url,
+            isactive: status
         })
-        .eq('id', product.id);
+        .eq('id', id);
 
     if (error) {
         console.error('Error updating product:', error.message);
@@ -23,4 +22,4 @@ const updateProduct = async (product) => {
 };
 
 // Exporting getAllProducts as default
-export default updateProduct;
+export default changeUserStatus;

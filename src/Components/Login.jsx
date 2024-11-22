@@ -97,7 +97,7 @@ import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Divider from '@mui/material/Divider';
-import FormLabel from '@mui/material/FormLabel';
+import {FormLabel, CircularProgress} from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 // import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
@@ -162,12 +162,15 @@ export default function SignIn(props) {
   const [password, setPassword] = useState('');
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
 
 
     const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent form submission
   
     try {
+      setLoading(true);
       const response = await fetch('/.netlify/functions/login', {
         method: 'POST',
         headers: {
@@ -199,10 +202,17 @@ export default function SignIn(props) {
         alert('Please enter valid user details');
       }
     } catch (error) {
+      setLoading(false);
       console.error('Error during login:', error);
       alert('An error occurred while logging in. Please try again later.');
+    }finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <CircularProgress />;
+  }
   const validateInputs = () => {
     const email = document.getElementById('email');
     const password = document.getElementById('password');

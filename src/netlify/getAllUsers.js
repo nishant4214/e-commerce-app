@@ -6,21 +6,17 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const updateProduct = async (product) => {
-    const { error } = await supabase
-        .from('products')
-        .update({
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            image_url: product.image_url,
-        })
-        .eq('id', product.id);
+const getAllUsers = async () => {
+    const { data: users, error } = await supabase
+    .from('users')
+    .select('id, email, full_name, created_at, mobile_no, address, role_id, isactive, user_roles(id, role)');  // Join billing with users table
 
     if (error) {
-        console.error('Error updating product:', error.message);
+        console.error('Error fetching bills:', error.message);
+        return [];
     }
+    return { users};
 };
 
 // Exporting getAllProducts as default
-export default updateProduct;
+export default getAllUsers;

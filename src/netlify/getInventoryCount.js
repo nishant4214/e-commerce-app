@@ -9,12 +9,23 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Fetch inventory count from the 'inventory' table
 const getInventoryCount = async () => {
-const { data, error } = await supabase.from('inventory').select('id', { count: 'exact' });
-if (error) {
-    console.error('Error fetching inventory count:', error.message);
-    return 0;
-}
-return data.length;  // Return the count of inventory items
-};
-
+    // Fetch the inventory data with the exact count of rows
+    const { data, error, count } = await supabase
+      .from('inventory')
+      .select('quantity', { count: 'exact' });
+  
+    // If there's an error in fetching data, log the error and return 0
+    if (error) {
+      console.error('Error fetching inventory count:', error.message);
+      return 0;
+    }
+  
+    // Calculate the total quantity by summing the 'quantity' field in each row
+    const totalQuantity = data.reduce((acc, row) => acc + row.quantity, 0);
+  
+    // Return both the total quantity and the exact row count
+    return  totalQuantity;
+    
+  };
+  
 export default getInventoryCount;

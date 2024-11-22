@@ -18,7 +18,7 @@ function SignUp() {
 
   const handleSubmit = async (event) =>{
     event.preventDefault();
-    const userDetails = await registerUser(email, password,fullName,mobileNo);
+    const userDetails = await registerUser(email, password,fullName,mobileNo,'');
     userDetails != null ?  navigate('../') : alert('Please enter valid user details')
   };
 

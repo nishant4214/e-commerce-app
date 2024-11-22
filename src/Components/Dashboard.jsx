@@ -27,6 +27,7 @@ import getProductCount from '../netlify/getProductCount';
 import BillingList from './BillingList';
 import { useContext } from 'react';
 import AuthContext from '../AuthContext';
+import UserList from './UserList';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -86,11 +87,12 @@ export default function Dashboard() {
 >
       <List>
         {[
-          { text: 'Products', path: './add-product' }, // Correct path
+          { text: 'Dashboard', path: '/dashboard' },
+          { text: 'Products', path: './add-product' },
           { text: 'Inventory', path: './manage-inventory' },
           { text: 'Billing', path: './billing' },
-          { text: 'Reports', path: './reports' },
           { text: 'All Bills', path: './bill-list' },
+          { text: 'All Users', path: './user-list' },
         ].map((item, index) => (
           <ListItem key={item.text} disablePadding>
             <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -190,6 +192,7 @@ export default function Dashboard() {
               <Route path="/manage-inventory" element={<AddInventoryForm />} />
               <Route path="/billing" element={<AddBillingForm />} />
               <Route path="/bill-list" element={<BillingList />} />
+              <Route path="/user-list" element={<UserList />} />
               {/* Other routes can be added here */}
           </Routes>
       </Box>
