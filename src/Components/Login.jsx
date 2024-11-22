@@ -171,10 +171,10 @@ export default function SignIn(props) {
   
     try {
       setLoading(true);
-      const response = await fetch('/.netlify/functions/login', {
+      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, password }),
       });
