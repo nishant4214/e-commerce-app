@@ -160,7 +160,6 @@ export default function SignIn(props) {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -190,14 +189,14 @@ export default function SignIn(props) {
   
       // Check if the login was successful
       if (data.success) {
-        const { token, user } = data; // Extract the token and user details
-  
-        // Store the token and user details in sessionStorage
+        const { token, user } = data;
+
+        // Store token and user details in sessionStorage
         sessionStorage.setItem('authToken', token);
         sessionStorage.setItem('user', JSON.stringify(user));
-  
-        // Navigate to the Dashboard (or another page)
-        navigate('/dashboard'); // Use correct path for your Dashboard
+        console.log(user);
+        // Navigate to the Dashboard
+        navigate('/dashboard');
       } else {
         alert('Please enter valid user details');
       }

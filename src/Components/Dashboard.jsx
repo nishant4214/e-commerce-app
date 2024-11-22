@@ -25,9 +25,8 @@ import getInventoryCount from '../netlify/getInventoryCount';
 import getTotalTodaysSales from '../netlify/getTodaysSells';
 import getProductCount from '../netlify/getProductCount';
 import BillingList from './BillingList';
-import { useContext } from 'react';
-import AuthContext from '../AuthContext';
 import UserList from './UserList';
+import clearSession from '../netlify/clearSession';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -37,7 +36,7 @@ export default function Dashboard() {
   const [inventoryCount, setInventoryCount] = React.useState(0);
   const [totalTodaysSales, setTotalTodaysSales] = React.useState(0);
   // const { authToken, user, logout } = useContext(AuthContext);
-  const { authToken } = useContext(AuthContext);
+  const authToken = sessionStorage.getItem('authToken');
 
   const navigate = useNavigate();
   const location = useLocation();  // Hook to get the current route
@@ -54,7 +53,11 @@ export default function Dashboard() {
     setAnchorEl(null);
   };
 
-  const handleAuth = () => {
+  const handleAuth = async () => {
+    const user = sessionStorage.getItem('user');
+    const userObj = JSON.parse(user)
+    console.log(userObj)
+    await clearSession(userObj.id)
     setAuth(false);
     navigate('/'); // Redirect to home or login
   };
@@ -109,8 +112,10 @@ export default function Dashboard() {
     </Box>
   );
    const showDashboardCountCards = location.pathname === "/dashboard"; // Only show on dashboard route
-  if (!authToken) {
-     alert('Not authenticated');  navigate('/'); return null;
+   if (!authToken) {
+    alert('Not authenticated');
+    navigate('/'); // Redirect to the login page
+    return null; // Do not render the Dashboard if not authenticated
   }
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -157,7 +162,6 @@ export default function Dashboard() {
                 onClose={handleClose}
               >
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
                 <MenuItem onClick={handleAuth}>Logout</MenuItem>
               </Menu>
             </div>
