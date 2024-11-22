@@ -185,7 +185,6 @@ export default function SignIn(props) {
   
       // Parse the response JSON
       const data = await response.json();
-      console.log(data); // Log the response data
   
       // Check if the login was successful
       if (data.success) {
@@ -194,8 +193,6 @@ export default function SignIn(props) {
         // Store token and user details in sessionStorage
         sessionStorage.setItem('authToken', token);
         sessionStorage.setItem('user', JSON.stringify(user));
-        console.log(user);
-        // Navigate to the Dashboard
         navigate('/dashboard');
       } else {
         alert('Please enter valid user details');
