@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, Button, Grid2, Box, Typography,TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
+import { Checkbox, TextField, Button, Grid2, Box, Typography,TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
 import getAllProducts from '../netlify/getAllInventory';
 import { updateInventoryByProductId } from '../netlify/updateInventoryByProductId';
 import AuthContext from '../AuthContext';
 import registerUser from '../netlify/signUp';
 import addBill from '../netlify/addBill';
 import html2canvas from 'html2canvas';
+import getAllUsers from '../netlify/getAllUsers';
+import { Label } from '@mui/icons-material';
 
 const AddBillingForm = () => {
   // Initialize the state with default values
@@ -23,6 +25,8 @@ const AddBillingForm = () => {
   const [inventory, setAllProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [purchasedItems, setPurchasedItems] = useState([]);
+  const [existingCustomer, setExistingCustomers] = useState([]); 
+  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
   const { authToken } = useContext(AuthContext);
   
@@ -77,7 +81,15 @@ const AddBillingForm = () => {
     }
   };
   
-  
+  const loadExistingCustomers = async(e) =>{
+    try {
+      const fetchedUsers = await getAllUsers();
+      const filteredUsers = fetchedUsers.filter(user => user.is_active === true && user.role_id === 2);
+      setExistingCustomers(filteredUsers);
+    } catch (error) {
+      
+    }
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!authToken) {
@@ -228,7 +240,7 @@ const AddBillingForm = () => {
     return <p>You are not logged in.</p>;
   }
   return (
-   
+    
     <Box component="form" onSubmit={handleSubmit} sx={{
       display: 'flex',
       flexDirection: 'column',
@@ -248,6 +260,9 @@ const AddBillingForm = () => {
       </Typography>
       
       <Grid2 container spacing={2}>
+        <Grid2 item xs={12} sm={4}>
+          <Checkbox label="Existing Customer" {...label} />
+        </Grid2>
         <Grid2 item xs={12} sm={4}>
           <TextField
             fullWidth
