@@ -7,7 +7,8 @@ import registerUser from '../netlify/signUp';
 import addBill from '../netlify/addBill';
 import html2canvas from 'html2canvas';
 import getAllUsers from '../netlify/getAllUsers';
-import { Label } from '@mui/icons-material';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const AddBillingForm = () => {
   // Initialize the state with default values
@@ -21,14 +22,21 @@ const AddBillingForm = () => {
     grandTotal: 0,
     address : ''
   });
-  
+  const [isDisabled, setIsDisabled] = useState(false);  // Initially enabled
+
   const [inventory, setAllProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [purchasedItems, setPurchasedItems] = useState([]);
   const [existingCustomer, setExistingCustomers] = useState([]); 
-  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+  const [isChecked, setCheckBoxValue] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState({
+    id:0,
+    customerName: '',
+    contactNumber: '',
+    customerEmail:''
+  });
 
-  const { authToken } = useContext(AuthContext);
+  const authToken = sessionStorage.getItem('authToken');
   
   useEffect(() => {
     if (!authToken) {
@@ -81,13 +89,51 @@ const AddBillingForm = () => {
     }
   };
   
+  const handleCustomerSelect = (event) => {
+    // const userId = event.target.value;
+    // console.log(existingCustomer);
+    // console.log(userId);
+    // const UserData= existingCustomer.filter(user => user.id === userId)
+    // console.log(UserData[0]);
+    // // setSelectedCustomer(userId);
+    // setSelectedCustomer({
+    //   id:userId,
+    //   customerName:UserData[0].full_name,
+    //   contactNumber:UserData[0].mobile_no,
+    //   customerEmail:UserData[0].email
+    // })
+
+    const selectedId = event.target.value;
+    const customer = existingCustomer.find(item => item.id === selectedId);
+
+    // Update selectedCustomer with the full customer details
+    if (customer) {
+      setSelectedCustomer({
+        id: customer.id,
+        customerName: customer.full_name,
+        contactNumber: customer.mobile_no,
+        customerEmail: customer.email
+      });
+    } else {
+      // If no customer is selected (e.g., the user selects the "None" option)
+      setSelectedCustomer({
+        id: 0,
+        customerName: '',
+        contactNumber: '',
+        customerEmail: ''
+      });
+    }
+  };
   const loadExistingCustomers = async(e) =>{
     try {
-      const fetchedUsers = await getAllUsers();
-      const filteredUsers = fetchedUsers.filter(user => user.is_active === true && user.role_id === 2);
-      setExistingCustomers(filteredUsers);
+      setCheckBoxValue(e.target.checked); // Determine if the checkbox is checked
+      if(isChecked){
+        const fetchedUsers = await getAllUsers();
+        const filteredUsers = fetchedUsers.users.filter(user => user.isactive === true && user.role_id === 2); // If unchecked, clear the existing customers
+        setExistingCustomers(filteredUsers);
+      }
     } catch (error) {
-      
+      alert('Customers not found');
     }
   }
   const handleSubmit = async (e) => {
@@ -95,7 +141,9 @@ const AddBillingForm = () => {
     if (!authToken) {
       throw new Error('No authentication token available');
     }
-    if (!bill.customerName || !bill.contactNumber || !bill.email || !bill.productId || Number(bill.quantity) <= 0) {
+    console.log(selectedCustomer);
+    // if (!bill.customerName || !bill.contactNumber || !bill.email || !bill.productId || Number(bill.quantity) <= 0) {
+    if (!selectedCustomer.customerName || !selectedCustomer.customerName || !selectedCustomer.customerEmail || !bill.productId || Number(bill.quantity) <= 0) {
       console.log('Form validation failed');
       return;
     }
@@ -186,13 +234,30 @@ const AddBillingForm = () => {
     window.print();
     document.body.innerHTML = originalContent;
   };
-  
+  const handleSaveUser = async () => {
+    if (!authToken) {
+      throw new Error('No authentication token available');
+    }
+    try {
+      const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber, bill.address,2);
+      if(userDetails){
+        document.getElementById('existing-customer-checkbox').checked = true;
+        setCheckBoxValue(true);
+        const fetchedUsers = await getAllUsers();
+        const filteredUsers = fetchedUsers.users.filter(user => user.isactive === true && user.role_id === 2); // If unchecked, clear the existing customers
+        setExistingCustomers(filteredUsers);
+      }
+    } catch (error) {
+      alert('Error while adding customer');
+    }
+   
+  };
   const handleFinalizeBill = async () => {
     if (!authToken) {
       throw new Error('No authentication token available');
     }
   
-    const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber, bill.address,2);
+    // const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber, bill.address,2);
     
     // Sequentially update inventory for each purchased item
     for (const item of purchasedItems) {
@@ -216,7 +281,7 @@ const AddBillingForm = () => {
     html2canvas(table).then(function(canvas) {
       // Convert canvas to Base64 image string
       const base64Image = canvas.toDataURL("image/png");
-      addBill(userDetails.id,user.id,base64Image, total_amount)
+      addBill(selectedCustomer.id,user.id,base64Image, total_amount)
     });
     
   };
@@ -258,123 +323,166 @@ const AddBillingForm = () => {
       <Typography variant="h6" gutterBottom align='left'>
         Customer Details
       </Typography>
-      
       <Grid2 container spacing={2}>
-        <Grid2 item xs={12} sm={4}>
-          <Checkbox label="Existing Customer" {...label} />
+        <Grid2 item xs={12} sm={12}>
+          <FormGroup>
+            <FormControlLabel control={<Checkbox id="existing-customer-checkbox" onChange={loadExistingCustomers}/>} 
+            label="Existing Customer" 
+            />
+          </FormGroup>        
         </Grid2>
-        <Grid2 item xs={12} sm={4}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Customer Name"
-            name="customerName"
-            value={bill.customerName || ''}
-            onChange={handleChange}
-            required
-          />
         </Grid2>
-        <Grid2 item xs={12} sm={4}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Contact Number"
-            name="contactNumber"
-            value={bill.contactNumber || '+91'}
-            onChange={handleChange}
-            required
-          />
-        </Grid2>
-        <Grid2 item xs={12} sm={4}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Email"
-            name="email"
-            value={bill.email || ''}
-            onChange={handleChange}
-          />
-        </Grid2>
-        <Grid2 item xs={12} sm={4}>
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Address"
-          name="address"
-          value={bill.address || ''}
-          onChange={handleChange}
-          multiline  // Enable multi-line input
-          rows={4}   // Default number of rows (lines) shown
-          rowsMax={6} // Max number of rows (lines) before the textarea becomes scrollable
-          variant="outlined"
-        />
-        </Grid2>
-      </Grid2>
-      <Typography variant="h6" gutterBottom align='left'>
-        Select Items
-      </Typography>
-      
-      <Grid2 container spacing={2}>
-        <Grid2 item xs={12} sm={4}>
-          <FormControl fullWidth margin="normal">
-          <InputLabel id="product-select-label">Product</InputLabel>
-          <Select
-            labelId="product-select-label"
-            id="product-select"
-            value={selectedProduct || ''}
-            label="Product"
-            onChange={handleProductChange}
-            size="large"  // Keeps the size small
-            sx={{
-              width: '210px',  // Ensures the Select takes full width
-              height: '50px', // Sets a fixed height
-              fontSize: '0.875rem', // Optional: Controls font size
-              boxSizing: 'border-box', // Ensures padding and border are included in the width/height
-            }}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {Array.isArray(inventory) && inventory.map((item) => (
-              <MenuItem key={item.products.id} value={item.products.id}>
-                {item.products.name}
+        {isChecked ? (
+          <FormControl sx={{ m: 1, width: 600 }}>
+            <InputLabel id="customer-select-label">Customer</InputLabel>
+            <Select
+              labelId="customer-select-label"
+              id="customer-select"
+              value={selectedCustomer.id || ''}  // Use the customer's ID as the value
+              label="Customer"
+              onChange={handleCustomerSelect}
+              disabled={isDisabled}  // Disable Select when isDisabled is true
+            >
+              <MenuItem value="">
+                <em>None</em>
               </MenuItem>
-            ))}
-          </Select>
+              {Array.isArray(existingCustomer) && existingCustomer.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.full_name} : {item.mobile_no}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
-        </Grid2>
-
-        <Grid2 item xs={12} sm={4}>
+        ) : (
+          <Grid2 container spacing={2}>
+            <Grid2 item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Customer Name"
+              name="customerName"
+              value={bill.customerName || ''}
+              onChange={handleChange}
+              required
+            />
+          </Grid2>
+          <Grid2 item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Contact Number"
+              name="contactNumber"
+              value={bill.contactNumber || '+91'}
+              onChange={handleChange}
+              required
+            />
+          </Grid2>
+          <Grid2 item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Email"
+              name="email"
+              value={bill.email || ''}
+              onChange={handleChange}
+            />
+          </Grid2>
+          <Grid2 item xs={12} sm={4}>
           <TextField
             fullWidth
             margin="normal"
-            label="Price Per Unit"
-            name="price"
-            type="number"
-            value={bill.price || ''}
+            label="Address"
+            name="address"
+            value={bill.address || ''}
             onChange={handleChange}
-            required
-            disabled
+            multiline  // Enable multi-line input
+            rows={4}   // Default number of rows (lines) shown
+            rowsMax={6} // Max number of rows (lines) before the textarea becomes scrollable
+            variant="outlined"
           />
+          </Grid2>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSaveUser}
+            sx={{ mt: 2 }}
+            style={{display:'block'}}
+            id="SaveUserBtn"
+          >
+            Save User
+          </Button>
         </Grid2>
+        )}
+        {isChecked ? (
+          <div>
+          <Typography variant="h6" gutterBottom align='left'>
+            Select Items
+          </Typography>
+          
+          <Grid2 container spacing={2}>
+            <Grid2 item xs={12} sm={4}>
+              <FormControl fullWidth margin="normal">
+              <InputLabel id="product-select-label">Product</InputLabel>
+              <Select
+                labelId="product-select-label"
+                id="product-select"
+                value={selectedProduct || ''}
+                label="Product"
+                onChange={handleProductChange}
+                size="large"  // Keeps the size small
+                sx={{
+                  width: '210px',  // Ensures the Select takes full width
+                  height: '50px', // Sets a fixed height
+                  fontSize: '0.875rem', // Optional: Controls font size
+                  boxSizing: 'border-box', // Ensures padding and border are included in the width/height
+                }}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {Array.isArray(inventory) && inventory.map((item) => (
+                  <MenuItem key={item.products.id} value={item.products.id}>
+                    {item.products.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              </FormControl>
+            </Grid2>
 
-        <Grid2 item xs={12} sm={4}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Quantity"
-            name="quantity"
-            type="number"
-            value={bill.quantity || 0}
-            onChange={handleChange}
-            required
-          />
-        </Grid2>
-      </Grid2>
+            <Grid2 item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Price Per Unit"
+                name="price"
+                type="number"
+                value={bill.price || ''}
+                onChange={handleChange}
+                required
+                disabled
+              />
+            </Grid2>
 
-      <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
-        Add To Bill
-      </Button>
+            <Grid2 item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Quantity"
+                name="quantity"
+                type="number"
+                value={bill.quantity || 0}
+                onChange={handleChange}
+                required
+              />
+            </Grid2>
+          </Grid2>
+
+          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
+            Add To Bill
+          </Button>
+          </div>
+        ):(<div></div>)}
+     
     </div>
 
       {/* Display added items in a Grid2 layout */}
@@ -392,11 +500,11 @@ const AddBillingForm = () => {
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={2} align="left"><strong>Name:</strong></TableCell>
-                  <TableCell colSpan={3} align="left"><strong></strong>{bill.customerName}</TableCell>
+                  <TableCell colSpan={3} align="left"><strong></strong>{selectedCustomer.customerName}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={2} align="left"><strong>Contact Number:</strong></TableCell>
-                  <TableCell colSpan={3} align="left"><strong></strong>{bill.contactNumber}</TableCell>
+                  <TableCell colSpan={3} align="left"><strong></strong>{selectedCustomer.contactNumber}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell align="left"></TableCell>
