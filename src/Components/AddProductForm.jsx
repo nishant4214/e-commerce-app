@@ -35,6 +35,18 @@ const AddProductForm = () => {
     setProduct({ ...product, [name]: value });
   };
 
+  const resetForm = () => {
+    setProduct({
+      id:0,
+      name: '',
+      description: '',
+      price: '',
+      image_url: '',
+    });
+
+
+  };
+
   const handleSubmit = async (e) => {
     if (!authToken) {
       throw new Error('No authentication token available');
@@ -120,6 +132,10 @@ const AddProductForm = () => {
       <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
         {product.id ? 'Update Product' : 'Add Product'}
       </Button>
+      <Button variant="contained" color="primary" onClick={resetForm} type="button" sx={{ mt: 2 }}>
+        Cancel
+      </Button>
+
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
         Product List

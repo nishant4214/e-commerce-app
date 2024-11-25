@@ -148,6 +148,10 @@ const AddInventoryForm = () => {
       <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
         {inventoryId ? 'Update' : 'Save'}
       </Button>
+      <Button variant="contained" color="primary" onClick={resetForm} type="button" sx={{ mt: 2 }}>
+        Cancel
+      </Button>
+
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
         Existing Inventory
