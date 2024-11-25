@@ -180,7 +180,7 @@ const AddBillingForm = () => {
       throw new Error('No authentication token available');
     }
   
-    const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber, bill.address);
+    const userDetails = await registerUser(bill.email, '12345678',bill.customerName,bill.contactNumber, bill.address,2);
     
     // Sequentially update inventory for each purchased item
     for (const item of purchasedItems) {
