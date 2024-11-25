@@ -56,7 +56,6 @@ export default function Dashboard() {
   const handleAuth = async () => {
     const user = sessionStorage.getItem('user');
     const userObj = JSON.parse(user)
-    console.log(userObj)
     await clearSession(userObj.id)
     setAuth(false);
     navigate('/'); // Redirect to home or login

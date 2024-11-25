@@ -195,11 +195,10 @@ export default function SignIn(props) {
         sessionStorage.setItem('user', JSON.stringify(user));
         navigate('/dashboard');
       } else {
-        alert('Please enter valid user details');
+        alert(data.message);
       }
     } catch (error) {
       setLoading(false);
-      console.error('Error during login:', error);
       alert('An error occurred while logging in. Please try again later.');
     }finally {
       setLoading(false);
