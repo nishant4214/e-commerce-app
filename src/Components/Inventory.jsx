@@ -27,6 +27,7 @@ const AddInventoryForm = () => {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [inventoryId, setInventoryId] = useState(null);
   const { authToken } = useContext(AuthContext);
+  const [isDisabled, setIsDisabled] = useState(false);  // Initially enabled
 
   useEffect(() => {
     if (!authToken) {
@@ -71,12 +72,15 @@ const AddInventoryForm = () => {
       quantity: item.quantity,
     });
     setInventoryId(item.id);
+    setIsDisabled(true);
   };
 
   const resetForm = () => {
     setProduct({ description: '', quantity: '' });
     setSelectedProduct('');
     setInventoryId(null);
+    setIsDisabled(false);
+
   };
 
   if (!authToken) {
@@ -105,6 +109,8 @@ const AddInventoryForm = () => {
           value={selectedProduct}
           label="Product"
           onChange={handleProductChange}
+          disabled={isDisabled}  // Disable Select when isDisabled is true
+
         >
           <MenuItem value="">
             <em>None</em>
