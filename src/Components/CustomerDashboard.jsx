@@ -125,6 +125,7 @@ const NAVIGATION = [
   const handleAuth = async () => {
     await clearSession(userObj.id); // Clear session data
     setAuth(false); // Update auth state
+    sessionStorage.clear();
     navigate('/'); // Redirect to login or home page
   };
 
