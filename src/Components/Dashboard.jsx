@@ -37,6 +37,8 @@ export default function Dashboard() {
   const [totalTodaysSales, setTotalTodaysSales] = React.useState(0);
   // const { authToken, user, logout } = useContext(AuthContext);
   const authToken = sessionStorage.getItem('authToken');
+  const user = sessionStorage.getItem('user');
+  const userObj = JSON.parse(user);
 
   const navigate = useNavigate();
   const location = useLocation();  // Hook to get the current route
@@ -54,8 +56,7 @@ export default function Dashboard() {
   };
 
   const handleAuth = async () => {
-    const user = sessionStorage.getItem('user');
-    const userObj = JSON.parse(user)
+
     await clearSession(userObj.id)
     setAuth(false);
     navigate('/'); // Redirect to home or login
@@ -145,6 +146,9 @@ export default function Dashboard() {
               >
                 <AccountCircle />
               </IconButton>
+              <Typography variant="h7" component="div" sx={{ flexGrow: 1 }}>
+                {userObj.username}
+              </Typography>
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}

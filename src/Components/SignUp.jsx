@@ -100,7 +100,7 @@ function SignUp(props) {
             autoComplete="Full Name" 
             onChange={(e) => setFullName(e.target.value)}
         />
-        <TextField id="username" label="Username"  autoComplete="User Name" variant="outlined"
+        <TextField id="username" label="Email Id"  autoComplete="Email ID" variant="outlined"
             onChange={(e) => setEmail(e.target.value)}
         />
          <TextField id="mobileNo" label="Mobile No" variant="outlined"
@@ -119,9 +119,6 @@ function SignUp(props) {
           label="Address"
           name="address"
           onChange={(e) => setAddress(e.target.value)}
-          multiline  // Enable multi-line input
-          rows={4}   // Default number of rows (lines) shown
-          rowsMax={6} // Max number of rows (lines) before the textarea becomes scrollable
           variant="outlined"
         />
 
