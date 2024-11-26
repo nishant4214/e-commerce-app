@@ -35,7 +35,6 @@ export default function Dashboard() {
   const [productCount, setProductCount] = React.useState(0);
   const [inventoryCount, setInventoryCount] = React.useState(0);
   const [totalTodaysSales, setTotalTodaysSales] = React.useState(0);
-  // const { authToken, user, logout } = useContext(AuthContext);
   const authToken = sessionStorage.getItem('authToken');
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user);

@@ -96,7 +96,6 @@ import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Divider from '@mui/material/Divider';
 import {FormLabel, CircularProgress} from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 // import Link from '@mui/material/Link';
@@ -107,7 +106,6 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 // import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 
@@ -193,7 +191,13 @@ export default function SignIn(props) {
         // Store token and user details in sessionStorage
         sessionStorage.setItem('authToken', token);
         sessionStorage.setItem('user', JSON.stringify(user));
-        navigate('/dashboard');
+        console.log('roleid:');
+        console.log(user.role_id);
+        if(user.role_id===1){
+          navigate('/dashboard');
+        }else{
+          navigate('/customer-dashboard');
+        }
       } else {
         alert(data.message);
       }
@@ -311,7 +315,6 @@ export default function SignIn(props) {
           
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-           
             <Typography sx={{ textAlign: 'center' }}>
               Don&apos;t have an account?{' '}
            <Link to="/SignUp" style={{ textDecoration: 'none', color: '#891214' }}>
