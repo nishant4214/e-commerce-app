@@ -58,10 +58,7 @@ export default function Dashboard() {
 
     await clearSession(userObj.id)
     setAuth(false);
-    sessionStorage.removeItem('selectedProductCount');
-    sessionStorage.removeItem('product');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('authToken');
+    sessionStorage.clear();
     navigate('/'); // Redirect to home or login
   };
   React.useEffect(() => {
