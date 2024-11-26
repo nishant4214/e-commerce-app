@@ -20,8 +20,8 @@ import getAllProducts from '../netlify/getAllProducts';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clearSession from '../netlify/clearSession';
-
-
+import CategoryIcon from '@mui/icons-material/Category';
+import LogoutIcon from '@mui/icons-material/Logout';
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
   colorSchemeSelector: 'class',
@@ -95,7 +95,7 @@ const NAVIGATION = [
     {
       segment: 'Products',
       title: 'Products',
-      icon: <ShoppingCartIcon />,
+      icon: <CategoryIcon />,
     },
     {
       segment: 'Cart',
@@ -113,7 +113,7 @@ const NAVIGATION = [
     {
       segment: 'Logout',
       title: 'Logout',
-      icon: <ShoppingCartIcon />,
+      icon: <LogoutIcon />,
     }
   ];
 
