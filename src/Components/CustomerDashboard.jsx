@@ -1,14 +1,10 @@
 import * as React from 'react';
 import { extendTheme, styled } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LayersIcon from '@mui/icons-material/Layers';
+import { ShoppingCart as ShoppingCartIcon, RemoveShoppingCart as RemoveShoppingCartIcon } from '@mui/icons-material';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
-import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ImageList from '@mui/material/ImageList';
@@ -35,14 +31,6 @@ const demoTheme = extendTheme({
     },
   },
 });
-
-// Skeleton loading component for placeholders
-const Skeleton = styled('div')(({ theme, height }) => ({
-  backgroundColor: theme.palette.action.hover,
-  borderRadius: theme.shape.borderRadius,
-  height,
-  content: '" "',
-}));
 
 function useDemoRouter(initialPath) {
   const [pathname, setPathname] = React.useState(initialPath);
@@ -73,6 +61,8 @@ export default function CustomerDashboard(props) {
   const [selectedProductCount, setSelectedProductCount] = useState(0); // State for the product count
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [cart, setCart] = useState([]);
+
   const router = useDemoRouter('/customer-dashboard');
   const demoWindow = window ? window() : undefined;
   const authToken = sessionStorage.getItem('authToken');
@@ -149,37 +139,43 @@ const NAVIGATION = [
   }, [authToken]);
 
   useEffect(() => {
-    // Load the cart and product count from sessionStorage on initial load
     const storedProducts = sessionStorage.getItem('product');
-    const storedCount = sessionStorage.getItem('selectedProductCount');
-
     if (storedProducts) {
       try {
         const parsedProducts = JSON.parse(storedProducts);
         if (Array.isArray(parsedProducts)) {
-          setSelectedProducts(parsedProducts);
-          setSelectedProductCount(parsedProducts.length); // Set the initial count
+          setCart(parsedProducts);
+          setSelectedProductCount(parsedProducts.length);
         }
       } catch (error) {
         console.error('Error parsing stored products:', error);
-        setSelectedProducts([]);
-        setSelectedProductCount(0);
       }
-    } else {
-      setSelectedProductCount(0); // No products in sessionStorage
     }
-  }, [selectedProducts]);
+  }, [cart]);
 
-  const handleAddToCart = (product) => {
-    // Ensure that selectedProducts is always an array before updating
-    const updatedCart = Array.isArray(selectedProducts) ? [...selectedProducts, product] : [product];
-    
-    setSelectedProducts(updatedCart);
-    
-    // Store the updated cart and product count in sessionStorage
-    sessionStorage.setItem('product', JSON.stringify(updatedCart));
-    sessionStorage.setItem('selectedProductCount', updatedCart.length);
+
+  const handleAddToCart = (prod) => {
+    // Check if the product is already in the cart
+    if (!cart.some(item => item.id === prod.id)) {
+      // Add the product to the cart
+      const updatedCart = [...cart, prod];
+      setCart(updatedCart);
+      
+      // Update sessionStorage with the new cart
+      sessionStorage.setItem('product', JSON.stringify(updatedCart));
+    }
   };
+  
+  const handleRemoveFromCart = (prod) => {
+    // Remove the product from the cart
+    const updatedCart = cart.filter(item => item.id !== prod.id);
+    setCart(updatedCart);
+    
+    // Update sessionStorage with the new cart
+    sessionStorage.setItem('product', JSON.stringify(updatedCart));
+  };
+  
+  const isInCart = (prod) => cart.some(item => item.id === prod.id);
 
   return (
     <AppProvider
@@ -214,46 +210,46 @@ const NAVIGATION = [
           {router.pathname === '/Products' && (
             <>
               <List>
-                {Array.isArray(products) && products.length > 0 ? (
-                  <ImageList cols={3} rowHeight={200} gap={16}>
-                    {products.map((prod) => (
-                      <ImageListItem key={prod.id}>
-                        <img
-                          src={prod.image_url || '/path/to/default-image.jpg'} // Fallback image if no image URL
-                          alt={prod.name}
-                          style={{
-                            objectFit: 'contain', // Ensure the entire image is visible without distortion
-                            maxWidth: '100%',     // Ensure image doesn't overflow the container
-                            maxHeight: 200,       // Set a maximum height for the image
-                            width: 'auto',        // Maintain the image's original aspect ratio
-                            height: 'auto',       // Maintain the image's original aspect ratio
-                          }}
-                        />
-                        <ImageListItemBar
-                          title={prod.name}
-                          subtitle={`Price: ${prod.price} INR`}
-                          position="bottom"
-                          style={{ background: 'rgba(0, 0, 0, 0.5)' }} // Optional: for better visibility
-                        />
-                        {/* Add to Cart Button */}
-                        <IconButton
-                          onClick={() => handleAddToCart(prod)} // Trigger function to handle adding to cart
-                          style={{
-                            position: 'absolute',
-                            bottom: 60,
-                            left: '90%',
-                            transform: 'translateX(-50%)',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: transparent button background for visibility
-                            color: '#fff',
-                          }}
-                        >
-                          <ShoppingCartIcon />
-                        </IconButton>
-                      </ImageListItem>
-                    ))}
-                  </ImageList>
+              {Array.isArray(products) && products.length > 0 ? (
+                <ImageList cols={3} rowHeight={200} gap={16}>
+                  {products.map((prod) => (
+                    <ImageListItem key={prod.id}>
+                      <img
+                        src={prod.image_url || '/path/to/default-image.jpg'}
+                        alt={prod.name}
+                        style={{
+                          objectFit: 'contain',
+                          maxWidth: '100%',
+                          maxHeight: 200,
+                          width: 'auto',
+                          height: 'auto',
+                        }}
+                      />
+                      <ImageListItemBar
+                        title={prod.name}
+                        subtitle={`Price: ${prod.price} INR`}
+                        position="bottom"
+                        style={{ background: 'rgba(0, 0, 0, 0.5)' }}
+                      />
+                      {/* Add to Cart / Remove from Cart Button */}
+                      <IconButton
+                        onClick={() => isInCart(prod) ? handleRemoveFromCart(prod) : handleAddToCart(prod)}
+                        style={{
+                          position: 'absolute',
+                          bottom: 60,
+                          left: '90%',
+                          transform: 'translateX(-50%)',
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          color: '#fff',
+                        }}
+                      >
+                        {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
+                      </IconButton>
+                    </ImageListItem>
+                  ))}
+                </ImageList>
                 ) : (
-                  <Typography>No products available.</Typography> // Fallback message
+                  <Typography>No products available.</Typography>
                 )}
               </List>
             </>
