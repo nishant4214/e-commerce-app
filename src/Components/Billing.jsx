@@ -90,19 +90,6 @@ const AddBillingForm = () => {
   };
   
   const handleCustomerSelect = (event) => {
-    // const userId = event.target.value;
-    // console.log(existingCustomer);
-    // console.log(userId);
-    // const UserData= existingCustomer.filter(user => user.id === userId)
-    // console.log(UserData[0]);
-    // // setSelectedCustomer(userId);
-    // setSelectedCustomer({
-    //   id:userId,
-    //   customerName:UserData[0].full_name,
-    //   contactNumber:UserData[0].mobile_no,
-    //   customerEmail:UserData[0].email
-    // })
-
     const selectedId = event.target.value;
     const customer = existingCustomer.find(item => item.id === selectedId);
 

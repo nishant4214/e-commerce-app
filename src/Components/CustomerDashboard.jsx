@@ -18,6 +18,10 @@ import { useNavigate } from 'react-router-dom';
 import clearSession from '../netlify/clearSession';
 import CategoryIcon from '@mui/icons-material/Category';
 import LogoutIcon from '@mui/icons-material/Logout';
+import addToCart from '../netlify/addToCart';
+import { removeFromCart } from '../netlify/removeFromCart';
+import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
+import CartStepper from './CartStepper';
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
   colorSchemeSelector: 'class',
@@ -50,24 +54,15 @@ function useDemoRouter(initialPath) {
 export default function CustomerDashboard(props) {
   const { window } = props;
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
   const [auth, setAuth] = useState(true);
-  const [product, setProduct] = useState({
-    name: '',
-    description: '',
-    price: '',
-    image_url: '',
-  });
-  const [selectedProductCount, setSelectedProductCount] = useState(0); // State for the product count
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [cart, setCart] = useState([]);
-
-  const router = useDemoRouter('/customer-dashboard');
-  const demoWindow = window ? window() : undefined;
   const authToken = sessionStorage.getItem('authToken');
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
+  const [cart, setCart] = useState([]);
+  const [selectedProductCount, setSelectedProductCount] = useState(cart.length); // State for the product count
+  const [anchorEl, setAnchorEl] = useState(null);
+  const router = useDemoRouter('/customer-dashboard');
+  const demoWindow = window ? window() : undefined;
   const navigate = useNavigate();
 
   
@@ -124,59 +119,63 @@ const NAVIGATION = [
       handleAuth();
     }
   }, [router.pathname]);
+  const fetchUserCart = async () => {
+    try {
+      const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
+      setCart(fetchedUserCart.updatedCartItems); // Access the cart_items array
+      setSelectedProductCount(fetchedUserCart.updatedCartItems.length);
+     // console.log(fetchedUserCart.cart_items)
+    } catch (error) {
+      console.error("Error fetching user cart:", error);
+    }
+  };
 
   useEffect(() => {
-    if (!authToken) {
-      throw new Error('No authentication token available');
-    }
-
     const fetchProducts = async () => {
-      const fetchedProducts = await getAllProducts();
-      setProducts(fetchedProducts.products);
-    };
-
-    fetchProducts();
+      try {
+        const fetchedProducts = await getAllProducts();
+        setProducts(fetchedProducts.products); // Assuming fetchedProducts is { products: [...] }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };  
+    if (authToken) {
+      fetchUserCart();
+      fetchProducts();
+    }
   }, [authToken]);
 
-  useEffect(() => {
-    const storedProducts = sessionStorage.getItem('product');
-    if (storedProducts) {
-      try {
-        const parsedProducts = JSON.parse(storedProducts);
-        if (Array.isArray(parsedProducts)) {
-          setCart(parsedProducts);
-          setSelectedProductCount(parsedProducts.length);
-        }
-      } catch (error) {
-        console.error('Error parsing stored products:', error);
+
+  const handleAddToCart = async (prod) => {
+    try {
+      if (!cart.some(item => item.id === prod.id)) {
+        const cartItemId = await addToCart(userObj.id, prod.id, 1);
+        const updatedProd = { ...prod, cartItemId };
+        const updatedCart = [...cart, updatedProd];
+        console.log(JSON.stringify(updatedCart));
+        setSelectedProductCount(updatedCart.length);
+        sessionStorage.setItem('product', JSON.stringify(updatedCart));
+        setCart(updatedCart);  // Update the cart state with the new cart
+       // console.log(updatedCart)
       }
-    }
-  }, [cart]);
-
-
-  const handleAddToCart = (prod) => {
-    // Check if the product is already in the cart
-    if (!cart.some(item => item.id === prod.id)) {
-      // Add the product to the cart
-      const updatedCart = [...cart, prod];
-      setCart(updatedCart);
-      
-      // Update sessionStorage with the new cart
-      sessionStorage.setItem('product', JSON.stringify(updatedCart));
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
     }
   };
   
-  const handleRemoveFromCart = (prod) => {
-    // Remove the product from the cart
+  
+  const handleRemoveFromCart = async (prod) => {
     const updatedCart = cart.filter(item => item.id !== prod.id);
     setCart(updatedCart);
-    
-    // Update sessionStorage with the new cart
+    setSelectedProductCount(updatedCart.length);
+    await removeFromCart(prod.id,false);
+    fetchUserCart();
     sessionStorage.setItem('product', JSON.stringify(updatedCart));
   };
   
-  const isInCart = (prod) => cart.some(item => item.id === prod.id);
-
+  const isInCart = (prod) => {
+    return cart.some(item => item.id === prod.id);
+  };
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -253,6 +252,9 @@ const NAVIGATION = [
                 )}
               </List>
             </>
+          )}
+          {router.pathname === '/Cart' && (
+           <CartStepper cartItemsProps={cart}/>
           )}
         </PageContainer>
       </DashboardLayout>
