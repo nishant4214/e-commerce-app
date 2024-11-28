@@ -49,9 +49,8 @@ function useDemoRouter(initialPath) {
 
   return router;
 }
-
-// Main Customer Dashboard Component
 export default function CustomerDashboard(props) {
+
   const { window } = props;
   const [products, setProducts] = useState([]);
   const [auth, setAuth] = useState(true);
@@ -59,7 +58,7 @@ export default function CustomerDashboard(props) {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
   const [cart, setCart] = useState([]);
-  const [selectedProductCount, setSelectedProductCount] = useState(cart.length); // State for the product count
+  const [selectedProductCount, setSelectedProductCount] = useState(sessionStorage.getItem('cartCount')); // State for the product count
   const [anchorEl, setAnchorEl] = useState(null);
   const router = useDemoRouter('/customer-dashboard');
   const demoWindow = window ? window() : undefined;
@@ -101,7 +100,21 @@ const NAVIGATION = [
       icon: <LogoutIcon />,
     }
   ];
+  
+const fetchData = async () => {
+  try {
+    const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
+    setCart(fetchedUserCart.updatedCartItems); // Access the cart_items array
+    setSelectedProductCount(fetchedUserCart.updatedCartItems.length)
+   // console.log(fetchedUserCart.cart_items)
+  } catch (error) {
+    console.error("Error fetching user cart:", error);
+  }
+};
 
+  useEffect(() => {
+    fetchData();
+  }, []);
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -124,7 +137,6 @@ const NAVIGATION = [
       const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
       setCart(fetchedUserCart.updatedCartItems); // Access the cart_items array
       setSelectedProductCount(fetchedUserCart.updatedCartItems.length);
-     // console.log(fetchedUserCart.cart_items)
     } catch (error) {
       console.error("Error fetching user cart:", error);
     }
@@ -152,9 +164,9 @@ const NAVIGATION = [
         const cartItemId = await addToCart(userObj.id, prod.id, 1);
         const updatedProd = { ...prod, cartItemId };
         const updatedCart = [...cart, updatedProd];
-        console.log(JSON.stringify(updatedCart));
         setSelectedProductCount(updatedCart.length);
         sessionStorage.setItem('product', JSON.stringify(updatedCart));
+        sessionStorage.setItem('cartCount', JSON.stringify(updatedCart.length));
         setCart(updatedCart);  // Update the cart state with the new cart
        // console.log(updatedCart)
       }
@@ -171,6 +183,7 @@ const NAVIGATION = [
     await removeFromCart(prod.id,false);
     fetchUserCart();
     sessionStorage.setItem('product', JSON.stringify(updatedCart));
+    sessionStorage.setItem('cartCount', JSON.stringify(updatedCart.length));
   };
   
   const isInCart = (prod) => {
@@ -254,7 +267,7 @@ const NAVIGATION = [
             </>
           )}
           {router.pathname === '/Cart' && (
-           <CartStepper cartItemsProps={cart}/>
+           <CartStepper />
           )}
         </PageContainer>
       </DashboardLayout>

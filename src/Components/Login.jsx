@@ -1,96 +1,4 @@
 import React, { useState } from 'react';
-// import Box from '@mui/material/Box';
-// import Container from '@mui/material/Container';
-// import TextField from '@mui/material/TextField';
-// import Typography from '@mui/material/Typography';
-// import { Button } from '@mui/material';
-// import { Link, useNavigate } from 'react-router-dom';
-// function Login() {
-//   const navigate = useNavigate();
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const handleSubmit = async (event) => {
-//     event.preventDefault(); // Prevent form submission
-  
-//     try {
-//       const response = await fetch('/.netlify/functions/login', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ email, password }),
-//       });
-  
-//       // Check if the response is OK (status code 200)
-//       if (!response.ok) {
-//         throw new Error(`HTTP error! status: ${response.status}`);
-//       }
-  
-//       // Parse the response JSON
-//       const data = await response.json();
-//       console.log(data); // Log the response data
-  
-//       // Check if the login was successful
-//       if (data.success) {
-//         const { token, user } = data; // Extract the token and user details
-  
-//         // Store the token and user details in sessionStorage
-//         sessionStorage.setItem('authToken', token);
-//         sessionStorage.setItem('user', JSON.stringify(user));
-  
-//         // Navigate to the Dashboard (or another page)
-//         navigate('/dashboard'); // Use correct path for your Dashboard
-//       } else {
-//         alert('Please enter valid user details');
-//       }
-//     } catch (error) {
-//       console.error('Error during login:', error);
-//       alert('An error occurred while logging in. Please try again later.');
-//     }
-//   };
-//   return (
-//     <Container maxWidth="sm">
-//       <Box
-//         component="form"
-//         sx={{
-//           display: 'flex',
-//           flexDirection: 'column',
-//           alignItems: 'center',
-//           '& > :not(style)': { m: 1, width: '25ch' },
-
-//         }}
-
-//         onSubmit={handleSubmit}
-//         autoComplete="off"
-//       >
-//         <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
-//             Login to E-Commerce
-//         </Typography>
-//         <TextField id="username" label="Username" variant="outlined"
-//             onChange={(e) => setEmail(e.target.value)}
-//         />
-//         <TextField
-//           id="password"
-//           label="Password"
-//           type="password"
-//           autoComplete="current-password"
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-//         <Button type='submit' variant="contained">Login</Button>
-//         <Typography variant="body2" sx={{ marginTop: 2 }}>
-//           Don't have an account?{' '}
-//           <Link to="/SignUp" style={{ textDecoration: 'none', color: '#891214' }}>
-//             Sign Up
-//           </Link>
-//         </Typography>
-//       </Box>
-//     </Container>
-//   );
-// }
-
-// export default Login;
-
-// import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -98,14 +6,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import {FormLabel, CircularProgress} from '@mui/material';
 import FormControl from '@mui/material/FormControl';
-// import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
-// import ForgotPassword from './ForgotPassword';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 
@@ -191,8 +97,7 @@ export default function SignIn(props) {
         // Store token and user details in sessionStorage
         sessionStorage.setItem('authToken', token);
         sessionStorage.setItem('user', JSON.stringify(user));
-        console.log('roleid:');
-        console.log(user.role_id);
+
         if(user.role_id===1){
           navigate('/dashboard');
         }else{
