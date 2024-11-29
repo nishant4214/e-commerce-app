@@ -101,35 +101,37 @@ const CartStepper = () => {
             <Typography>No items in your cart.</Typography>
           ) : (
             <Grid2 container spacing={3}>
-              {cartItems.map((prod) => (
-                <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {cartItems.map((prod) => (
+              <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <img
-                      src={prod.products?.image_url || prod.image_url} // Will pick the first non-null image URL
-                      alt={prod.products?.name || prod.name} // Will pick the first non-null name
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '200px',
-                        objectFit: 'contain',
-                      }}
-                    />
-                    <Typography variant="h6">{prod.products?.name ||prod.name}</Typography>
-                    <Typography variant="body1">Price: {prod.products?.price ||prod.price} INR</Typography>
-                    <Typography variant="body1">  Total: {((prod.products?.price || prod.price) * prod.quantity).toFixed(2)} INR</Typography>
+                    src={prod.products?.image_url || prod.image_url} // Will pick the first non-null image URL
+                    alt={prod.products?.name || prod.name} // Will pick the first non-null name
+                    style={{
+                      width: '150px',  // Set fixed width
+                      height: '150px', // Set fixed height
+                      objectFit: 'cover', // Maintain aspect ratio but fill the container
+                      borderRadius: '8px', // Optional: adds rounded corners to the image
+                    }}
+                  />
+                  <Typography variant="h6">{prod.products?.name || prod.name}</Typography>
+                  <Typography variant="body1">Price: {prod.products?.price || prod.price} INR</Typography>
+                  <Typography variant="body1">Total: {((prod.products?.price || prod.price) * prod.quantity).toFixed(2)} INR</Typography>
 
-                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                      <Button variant="contained" color="primary" onClick={() => handleDecrease(prod)}>-</Button>
-                      <Typography variant="h6" style={{ margin: '0 10px' }}>{prod.quantity}</Typography>
-                      <Button variant="contained" color="primary" onClick={() => handleIncrease(prod)}>+</Button>
-                    </div>
-                    <div style={{ marginTop: '10px' }}>
-                      <IconButton color="secondary" onClick={() => handleRemoveFromCart(prod)}>
-                        <RemoveShoppingCartIcon />
-                      </IconButton>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                    <Button variant="contained" color="primary" onClick={() => handleDecrease(prod)}>-</Button>
+                    <Typography variant="h6" style={{ margin: '0 10px' }}>{prod.quantity}</Typography>
+                    <Button variant="contained" color="primary" onClick={() => handleIncrease(prod)}>+</Button>
                   </div>
-                </Grid2>
-              ))}
+                  <div style={{ marginTop: '10px' }}>
+                    <IconButton color="secondary" onClick={() => handleRemoveFromCart(prod)}>
+                      <RemoveShoppingCartIcon />
+                    </IconButton>
+                  </div>
+                </div>
+              </Grid2>
+            ))}
+
             </Grid2>
           )}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
