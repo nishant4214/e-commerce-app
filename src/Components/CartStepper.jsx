@@ -16,7 +16,6 @@ const steps = ['Review Cart', 'Shipping Details', 'Payment'];
 
 const CartStepper = () => {
   const [activeStep, setActiveStep] = React.useState(0);
-  // const [cartItems, setCartItems] = React.useState([]); // Initial cart items for example
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
   const { cartContextCount, cartItems, updateCart } = useCart();  // Access cartCount and cartItems from context

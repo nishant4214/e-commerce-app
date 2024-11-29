@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { extendTheme, styled } from '@mui/material/styles';
+import { extendTheme } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import { ShoppingCart as ShoppingCartIcon, RemoveShoppingCart as RemoveShoppingCartIcon } from '@mui/icons-material';
+import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
 import Typography from '@mui/material/Typography';
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,6 @@ import CategoryIcon from '@mui/icons-material/Category';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CartStepper from './CartStepper';
 import ShowAllProducts from './ShowAllProducts';
-import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { CartProvider, useCart } from '../CartContext';
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
@@ -53,24 +52,11 @@ export default function CustomerDashboard(props) {
   const { window } = props;
   const [auth, setAuth] = useState(true);
   const authToken = sessionStorage.getItem('authToken');
- // State for the product count
   const [anchorEl, setAnchorEl] = useState(null);
   const router = useDemoRouter('/customer-dashboard');
   const demoWindow = window ? window() : undefined;
   const navigate = useNavigate();
-  // const fetchData = async () => {
-  //   try {
-  //     const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
-  //     setSelectedProductCount(fetchedUserCart.updatedCartItems.length);
-  //   } catch (error) {
-  //     console.error("Error fetching user cart:", error);
-  //   }
-  // }
-  // const cartCount = sessionStorage.getItem('cartCount');
-  // const cart = sessionStorage.getItem('product');
-
-  // const [selectedProductCount, setSelectedProductCount] = useState(cartCount);
-// Navigation config (adjust as needed)
+  
 const NAVIGATION = [
     {
       kind: 'header',
@@ -122,11 +108,6 @@ const NAVIGATION = [
       handleAuth();
     }
   }, [router.pathname]);
-
- 
-  // React.useEffect(() => {
-  //   fetchData();
-  // }, [cart]);
   
   return (
 
