@@ -11,14 +11,16 @@ import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import { updateCartItemCount } from '../netlify/updateCartItemCount';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { removeFromCart } from '../netlify/removeFromCart';
-
+import { CartProvider, useCart } from '../CartContext';
 const steps = ['Review Cart', 'Shipping Details', 'Payment'];
 
 const CartStepper = () => {
   const [activeStep, setActiveStep] = React.useState(0);
-  const [cartItems, setCartItems] = React.useState([]); // Initial cart items for example
+  // const [cartItems, setCartItems] = React.useState([]); // Initial cart items for example
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
+  const { cartContextCount, cartItems, updateCart } = useCart();  // Access cartCount and cartItems from context
+
   const isStepOptional = (step) => step === 1;
 
   const isStepSkipped = (step) => false;
@@ -33,27 +35,19 @@ const CartStepper = () => {
   const fetchData = async () => {
     try {
       const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
-      setCartItems(fetchedUserCart.updatedCartItems); // Access the cart_items array
-     // console.log(fetchedUserCart.cart_items)
+      updateCart(fetchedUserCart.updatedCartItems); // Update cart in context
+      sessionStorage.setItem('product', JSON.stringify(fetchedUserCart.updatedCartItems));
+      sessionStorage.setItem('cartCount', fetchedUserCart.updatedCartItems.length);
     } catch (error) {
       console.error("Error fetching user cart:", error);
     }
   };
 
-  React.useEffect(() => {
-    fetchData();
-  }, []); // Empty dependency array ensures it runs only once on mount
-
-
   const handleIncrease = (prod) => {
     const updatedCart = cartItems.map(item =>
       item.id === prod.id ? { ...item, quantity: item.quantity + 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity+1)  } : item
     );
-
-
-    setCartItems(updatedCart);
-    sessionStorage.setItem('product', JSON.stringify(updatedCart));
-
+    updateCart(updatedCart); // Update cart in context
   };
 
   const handleDecrease = (prod) => {
@@ -62,12 +56,9 @@ const CartStepper = () => {
         ? { ...item, quantity: item.quantity - 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity-1)   }
         : item
     );
-    setCartItems(updatedCart);
-    sessionStorage.setItem('product', JSON.stringify(updatedCart));
+    updateCart(updatedCart); // Update cart in context
 
   };
-
- 
 
   const handleReset = () => {
     setActiveStep(0);
@@ -75,17 +66,14 @@ const CartStepper = () => {
 
   const handleRemoveFromCart = async (prod) => {
     const updatedCart = cartItems.filter(item => item.id !== prod.id);
-    setCartItems(updatedCart);
-    // setSelectedProductCount(updatedCart.length);
+    updateCart(updatedCart); // Update cart in context
     await removeFromCart(prod.id,false);
     fetchData();
     sessionStorage.setItem('product', JSON.stringify(updatedCart));
-    sessionStorage.setItem('cartCount', JSON.stringify(updatedCart.length));
+    sessionStorage.setItem('cartCount', updatedCart.length);
 
   };
   
-  
-
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep}>

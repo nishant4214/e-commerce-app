@@ -68,8 +68,7 @@ export default function SignIn(props) {
   const [loading, setLoading] = useState(false);
 
 
-
-    const handleSubmit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent form submission
   
     try {
