@@ -12,13 +12,44 @@ import { updateCartItemCount } from '../netlify/updateCartItemCount';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { removeFromCart } from '../netlify/removeFromCart';
 import { CartProvider, useCart } from '../CartContext';
+import {   TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import getAllAddressByUserId from '../netlify/getAllAddressByUserId';
+import addUserAddress from '../netlify/addUserAddress';
 const steps = ['Review Cart', 'Shipping Details', 'Payment'];
 
 const CartStepper = () => {
   const [activeStep, setActiveStep] = React.useState(0);
+  const [cartTotal, setCartTotal] = React.useState(0);
+  const [CGSTValue, setCGSTValue] = React.useState(0);
+  const [SGSTValue, setSGSTValue] = React.useState(0);
+  const [GrandTotal, setGrandTotal] = React.useState(0);
+  const [states, setStates] = React.useState([]);
+  const [cities, setCities] = React.useState([]);
+  const [shippingAddress, setShippingAddress] = React.useState("");
+  const [addressList, setAddressList] = React.useState([]);
+  const [newAddress, setNewAddress] = React.useState({
+    streetAddress: '',
+    cityId: 0,
+    stateId: 0,
+    postalCode: '',
+    contactNumber:''
+  });
+  const [isAddingAddress, setIsAddingAddress] = React.useState(false); // To toggle between view and form
+
+
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
   const { cartContextCount, cartItems, updateCart } = useCart();  // Access cartCount and cartItems from context
+
+  const fetchAddresses = async () => {
+    try {
+      const delivery_addresses = getAllAddressByUserId(userObj.id)
+      console.log(delivery_addresses);
+      setAddressList(delivery_addresses); // Store the addresses
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+    }
+  };
 
   const isStepOptional = (step) => step === 1;
 
@@ -31,10 +62,66 @@ const CartStepper = () => {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
+
+
+  const handleSelectAddress = (event) => {
+    setShippingAddress(event.target.value);
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setNewAddress((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  // Add new address
+  const handleAddNewAddress = async () => {
+    if (!newAddress.streetAddress || !newAddress.cityId || !newAddress.stateId || !newAddress.postalCode || !newAddress.contactNumber) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const address_id = addUserAddress(newAddress.streetAddress,newAddress.cityId,newAddress.stateId,newAddress.postalCode, newAddress.contactNumber);
+      if(!address_id){
+        fetchAddresses();
+        setIsAddingAddress(false);  // Close the address form
+        setNewAddress({ streetAddress: '', cityId: 0, stateId: 0, postalCode: '', contactNumber:'' }); // Clear form
+      }
+    } catch (error) {
+      console.error("Error adding address:", error);
+      alert("There was an error adding your address.");
+    }
+  };
+
+
+  const calculateTotal = (cartItems) => {
+    let total = 0;
+    cartItems.forEach(item => {
+      const itemPrice = item.products?.price || item.price;
+      total += itemPrice * item.quantity;
+    });
+  
+    // Calculate taxes
+    const SGST = total * 0.09;
+    const CGST = total * 0.09;
+    const grandTotal = total + SGST + CGST;
+  
+    // Set stateId with computed values
+    setCartTotal(total.toFixed(2));
+    setSGSTValue(SGST.toFixed(2));
+    setCGSTValue(CGST.toFixed(2));
+    setGrandTotal(grandTotal.toFixed(2));
+  };
+  
+  
   const fetchData = async () => {
     try {
       const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
       updateCart(fetchedUserCart.updatedCartItems); // Update cart in context
+      calculateTotal(fetchedUserCart.updatedCartItems);  
       sessionStorage.setItem('product', JSON.stringify(fetchedUserCart.updatedCartItems));
       sessionStorage.setItem('cartCount', fetchedUserCart.updatedCartItems.length);
     } catch (error) {
@@ -42,22 +129,24 @@ const CartStepper = () => {
     }
   };
 
-  const handleIncrease = (prod) => {
-    const updatedCart = cartItems.map(item =>
-      item.id === prod.id ? { ...item, quantity: item.quantity + 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity+1)  } : item
-    );
-    updateCart(updatedCart); // Update cart in context
-  };
+  
+const handleIncrease = (prod) => {
+  const updatedCart = cartItems.map(item => 
+    item.id === prod.id ? { ...item, quantity: item.quantity + 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity + 1) } : item
+  );
+  updateCart(updatedCart);
+  calculateTotal(updatedCart);  // Recalculate total
+};
 
-  const handleDecrease = (prod) => {
-    const updatedCart = cartItems.map(item =>
-      item.id === prod.id && item.quantity > 1
-        ? { ...item, quantity: item.quantity - 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity-1)   }
-        : item
-    );
-    updateCart(updatedCart); // Update cart in context
-
-  };
+const handleDecrease = (prod) => {
+  const updatedCart = cartItems.map(item => 
+    item.id === prod.id && item.quantity > 1
+      ? { ...item, quantity: item.quantity - 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity - 1) }
+      : item
+  );
+  updateCart(updatedCart);
+  calculateTotal(updatedCart);  // Recalculate total
+};
 
   const handleReset = () => {
     setActiveStep(0);
@@ -66,12 +155,17 @@ const CartStepper = () => {
   const handleRemoveFromCart = async (prod) => {
     const updatedCart = cartItems.filter(item => item.id !== prod.id);
     updateCart(updatedCart); // Update cart in context
+
     await removeFromCart(prod.id,false);
     fetchData();
     sessionStorage.setItem('product', JSON.stringify(updatedCart));
     sessionStorage.setItem('cartCount', updatedCart.length);
 
   };
+  
+  React.useEffect(() => {
+    calculateTotal(cartItems);
+  }, []);
   
   return (
     <Box sx={{ width: '100%' }}>
@@ -100,6 +194,7 @@ const CartStepper = () => {
           {cartItems.length === 0 ? (
             <Typography>No items in your cart.</Typography>
           ) : (
+            <div>
             <Grid2 container spacing={3}>
             {cartItems.map((prod) => (
               <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
@@ -129,10 +224,19 @@ const CartStepper = () => {
                     </IconButton>
                   </div>
                 </div>
+                    
               </Grid2>
             ))}
-
             </Grid2>
+            <Grid2>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
+              <Typography variant="body1">Total : {cartTotal} INR</Typography>
+              <Typography variant="body1">CGST : {CGSTValue} INR</Typography>
+              <Typography variant="body1">SGST : {SGSTValue} INR</Typography>
+              <Typography variant="" style={{fontSize:'30px', marginRight:0}}>Grand Total :{GrandTotal} INR</Typography>
+              </div>
+            </Grid2>
+            </div>
           )}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
             <Button
@@ -153,7 +257,86 @@ const CartStepper = () => {
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Shipping Details</Typography>
           {/* Shipping form or details go here */}
-          <Button onClick={handleNext}>Next</Button>
+          {!isAddingAddress ? (
+            <>
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>Select Address</InputLabel>
+                <Select
+                  value={shippingAddress}
+                  onChange={handleSelectAddress}
+                  label="Select Address"
+                >
+                  {addressList.map((address) => (
+                    <MenuItem key={address.id} value={address.id}>
+                      {address.streetAddress}, {address.cityId}, {address.stateId}, {address.postalCode}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button onClick={() => setIsAddingAddress(true)}>Add New Address</Button>
+            </>
+          ) : (
+            <>
+              <TextField
+                label="Address Line 1"
+                variant="outlined"
+                name="streetAddress"
+                value={newAddress.streetAddress}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="cityId"
+                variant="outlined"
+                name="cityId"
+                value={newAddress.cityId}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="stateId"
+                variant="outlined"
+                name="stateId"
+                value={newAddress.stateId}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="postalCode"
+                variant="outlined"
+                name="postalCode"
+                value={newAddress.postalCode}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="contactNumber"
+                variant="outlined"
+                name="contactNumber"
+                value={newAddress.contactNumber}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+              <Button onClick={handleAddNewAddress} variant="contained" color="primary">Add Address</Button>
+              <Button onClick={() => setIsAddingAddress(false)} sx={{ ml: 2 }}>Cancel</Button>
+            </>
+          )}
+
+          <Button onClick={handleAddNewAddress} variant="contained" sx={{ mb: 2 }}>
+            Add New Address
+          </Button>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
+            <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
+              Back
+            </Button>
+            <Button onClick={handleNext}>Next</Button>
+          </Box>
         </Box>
       ) : activeStep === 2 ? (
         // Payment step
