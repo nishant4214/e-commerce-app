@@ -209,6 +209,7 @@ export default function SignIn(props) {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
+      
             <Button
               type="submit"
               fullWidth
@@ -217,6 +218,9 @@ export default function SignIn(props) {
             >
               Sign in
             </Button>
+            <Link to="/ForgotPassword" style={{ textDecoration: 'none', color: '#891214' }}>
+             Forgot Password?
+           </Link>
           
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
