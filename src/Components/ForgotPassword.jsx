@@ -65,7 +65,7 @@ const handleSubmit = async (e) => {
 
   // Send email reset request to backend
   try {
-    const response = await fetch('http://localhost:5000/reset-password', {
+    const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/sendResetEmail', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
