@@ -67,8 +67,21 @@ function SignUp(props) {
 
   const handleSubmit = async (event) =>{
     event.preventDefault();
-    const userDetails = await registerUser(email, password,fullName,mobileNo,address,2);
-    console.log(userDetails);
+    const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/encryptPassword', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password }),
+    });
+
+    const data = await response.json();
+
+    // Check if the response is OK (status code 200)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const userDetails = await registerUser(email, data.encPass,fullName,mobileNo,address,2);
     userDetails != null ?  navigate('../') : alert('Please enter valid user details')
   };
 
