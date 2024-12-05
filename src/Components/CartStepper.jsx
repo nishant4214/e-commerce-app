@@ -540,7 +540,7 @@ const handleDecrease = (prod) => {
         <Box sx={{ mt: 2 }}>
       
           {/* <Button onClick={handleNext}>Finish</Button> */}
-          <PaymentComponent amountProps={GrandTotal}/>
+          <PaymentComponent amountProps={GrandTotal} cgst={CGSTValue} sgst={SGSTValue} shippingAddress={shippingAddress} />
           <Button onClick={handleNext}>
             {activeStep === steps.length - 1 ? "Finish" : "Next"}
           </Button>
