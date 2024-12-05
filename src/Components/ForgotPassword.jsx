@@ -53,75 +53,216 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     }),
   },
 }));
-
+function PasswordGuidelines({ password }) {
+  return (
+    <Box>
+      <Typography variant="caption" sx={{ color: password.length >= 8 && password.length <= 15 ? 'green' : 'red' }}>
+        • 8-15 characters
+      </Typography>
+      <br />
+      <Typography variant="caption" sx={{ color: /[A-Z]/.test(password) ? 'green' : 'red' }}>
+        • At least one uppercase letter
+      </Typography>
+      <br />
+      <Typography variant="caption" sx={{ color: /[a-z]/.test(password) ? 'green' : 'red' }}>
+        • At least one lowercase letter
+      </Typography>
+      <br />
+      <Typography variant="caption" sx={{ color: /[0-9]/.test(password) ? 'green' : 'red' }}>
+        • At least one number
+      </Typography>
+      <br />
+      <Typography variant="caption" sx={{ color: /[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'green' : 'red' }}>
+        • At least one special character (!@#$%^&*)
+      </Typography>
+    </Box>
+  );
+}
 function ForgotPassword(props) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
+  const [isOtpSent, setIsOtpSent] = useState(false);
 
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    try {
+      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/sendResetEmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
 
-  // Send email reset request to backend
-  try {
-    const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/sendResetEmail', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+      const data = await response.json();
 
-    const data = await response.json();
-
-    if (response.ok) {
-      setMessage('Password reset link sent to your email!');
-    } else {
-      setMessage(data.message || 'An error occurred');
+      if (response.ok) {
+        setMessage('Password reset OTP sent to your email!');
+        setIsOtpSent(true);
+      } else {
+        setMessage(data.message || 'An error occurred');
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage('Error while sending reset email.');
     }
-  } catch (error) {
-    console.error(error);
-    setMessage('Error while sending reset email.');
-  }
-};
+  };
 
-  
+  const validatePassword = (password) => {
+    return (
+      password.length >= 8 &&
+      password.length <= 15 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    );
+  };
+  const handlePasswordResetSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate OTP
+    if (!/^\d{6}$/.test(otp)) {
+      setMessage('OTP must be a 6-digit number.');
+      return;
+    }
+
+    const isValidPassword = validatePassword(newPassword);
+
+    if (!isValidPassword) {
+      setMessage('Password does not meet the required criteria.');
+      return;
+    }
+
+    // Validate new password length
+    if (newPassword.length < 8 || newPassword.length > 15) {
+      setMessage('Password must be between 8 to 15 characters.');
+      return;
+    }
+
+    // Validate new password length
+    if (confirmPassword.length < 8 || confirmPassword.length > 15) {
+      setMessage('Password must be between 8 to 15 characters.');
+      return;
+    }
+
+    // Validate passwords match
+    if (newPassword !== confirmPassword) {
+      setMessage('New Password and Confirm Password must match.');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://ecommerce-login-api.netlify.app/.netlify/functions/resetPassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('Password successfully reset!');
+        navigate('/');
+      } else {
+        setMessage(data.message || 'An error occurred during password reset');
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage('Error while resetting password.');
+    }
+  };
+
   return (
     <AppTheme {...props}>
-    <CssBaseline enableColorScheme />
-    <SignInContainer direction="column" justifyContent="space-between">
-      <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />  
-    <Container maxWidth="sm">
-    <Card variant="outlined">
-      <Box
-        component="form"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          '& > :not(style)': { m: 1, width: '25ch' },
+      <CssBaseline enableColorScheme />
+      <SignInContainer direction="column" justifyContent="space-between">
+        <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
+        <Container maxWidth="sm">
+          <Card variant="outlined">
+            <Box
+              component="form"
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                '& > :not(style)': { m: 1, width: '25ch' },
+              }}
+              onSubmit={isOtpSent ? handlePasswordResetSubmit : handleEmailSubmit}
+              autoComplete="off"
+            >
+              <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
+                {isOtpSent ? 'Reset Your Password' : 'Forgot Password'}
+              </Typography>
 
-        }}
-        onSubmit={handleSubmit}
-        autoComplete="off"
-      >
-        <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
-            Forgot Password
-        </Typography>
-        <TextField id="username" label="Email Id"  autoComplete="Email ID" variant="outlined"
-            onChange={(e) => setEmail(e.target.value)}
-        />
-        <Button type='submit' variant="contained">Get reset password link</Button>
-        {message && <p>{message}</p>}
+              {!isOtpSent ? (
+                <>
+                  <TextField
+                    id="email"
+                    label="Email Id"
+                    autoComplete="Email ID"
+                    variant="outlined"
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <Button type="submit" variant="contained">
+                    Send OTP
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <TextField
+                    id="otp"
+                    label="Enter OTP"
+                    variant="outlined"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    autoComplete="off"
+                    inputProps={{ maxLength: 6 }} // Maximum length for the password
+                    
+                  />
+                  <TextField
+                    id="newPassword"
+                    label="New Password"
+                    type="password"
+                    variant="outlined"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    autoComplete="off"
+                    inputProps={{ maxLength: 15 }} // Maximum length for the password
 
-        <Link to="/" style={{ textDecoration: 'none', color: '#891214' }}>
-           Cancel
-        </Link>
-      </Box>
-      </Card>
-    </Container>
-    </SignInContainer>
+                  />
+                  <PasswordGuidelines password={newPassword} />
+
+                  <TextField
+                    id="confirmPassword"
+                    label="Confirm Password"
+                    type="password"
+                    variant="outlined"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="off"
+                    inputProps={{ maxLength: 15 }} // Maximum length for the password
+                  />
+                  <Button type="submit" variant="contained">
+                    Reset Password
+                  </Button>
+                </>
+              )}
+
+              {message && <p>{message}</p>}
+
+              {!isOtpSent && (
+                <Link to="/" style={{ textDecoration: 'none', color: '#891214' }}>
+                  Cancel
+                </Link>
+              )}
+            </Box>
+          </Card>
+        </Container>
+      </SignInContainer>
     </AppTheme>
   );
 }

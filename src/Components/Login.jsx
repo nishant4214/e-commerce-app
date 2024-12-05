@@ -184,6 +184,8 @@ export default function SignIn(props) {
                 variant="outlined"
                 color={emailError ? 'error' : 'primary'}
                 onChange={(e) => setEmail(e.target.value)}
+                inputProps={{ maxLength: 50 }} // Maximum length for the password
+
 
               />
             </FormControl>
@@ -203,6 +205,7 @@ export default function SignIn(props) {
                 variant="outlined"
                 color={passwordError ? 'error' : 'primary'}
                 onChange={(e) => setPassword(e.target.value)}
+                inputProps={{ maxLength: 15 }} // Maximum length for the password
               />
             </FormControl>
             <FormControlLabel

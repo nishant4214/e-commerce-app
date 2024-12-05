@@ -99,12 +99,17 @@ function SignUp(props) {
         <TextField id="fullName" label="Full Name" variant="outlined"
             autoComplete="Full Name" 
             onChange={(e) => setFullName(e.target.value)}
+            inputProps={{ maxLength: 100 }} // Maximum length for the password
+
         />
         <TextField id="username" label="Email Id"  autoComplete="Email ID" variant="outlined"
             onChange={(e) => setEmail(e.target.value)}
+            inputProps={{ maxLength: 50 }} // Maximum length for the password
+
         />
          <TextField id="mobileNo" label="Mobile No" variant="outlined"
             onChange={(e) => setMobileNo(e.target.value)}
+            inputProps={{ maxLength: 13 }} // Maximum length for the password
         />
         <TextField
           id="password"
@@ -112,6 +117,7 @@ function SignUp(props) {
           type="password"
           autoComplete="new password"
           onChange={(e) => setPassword(e.target.value)}
+          inputProps={{ maxLength: 15 }} 
         />
         <TextField
           fullWidth
@@ -120,6 +126,7 @@ function SignUp(props) {
           name="address"
           onChange={(e) => setAddress(e.target.value)}
           variant="outlined"
+          inputProps={{ maxLength: 200 }} 
         />
 
         <Button type='submit' variant="contained">Sign Up</Button>
