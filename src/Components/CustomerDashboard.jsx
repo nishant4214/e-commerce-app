@@ -2,6 +2,7 @@ import * as React from 'react';
 import { extendTheme } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
+import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
@@ -16,6 +17,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import CartStepper from './CartStepper';
 import ShowAllProducts from './ShowAllProducts';
 import { CartProvider, useCart } from '../CartContext';
+import {AllOrders, ViewOrder} from './AllOrders';
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
   colorSchemeSelector: 'class',
@@ -86,6 +88,11 @@ const NAVIGATION = [
       icon: <ShoppingCartIcon />,
     },
     {
+      segment: 'Orders',
+      title: 'Orders',
+      icon: <ShoppingBasketIcon />,
+    },
+    {
       segment: 'Logout',
       title: 'Logout',
       icon: <LogoutIcon />,
@@ -145,6 +152,9 @@ const NAVIGATION = [
           )}
           {router.pathname === '/Cart' && (
            <CartStepper />
+          )}
+          {router.pathname === '/Orders' && (
+           <AllOrders />
           )}
         </PageContainer>
       </DashboardLayout>

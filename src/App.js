@@ -10,6 +10,7 @@ import ForgotPassword from './Components/ForgotPassword';
 import 'process';
 import { AuthProvider } from './AuthContext';
 import { CartProvider, useCart }  from './CartContext';
+import AllOrders from './Components/AllOrders';
 function App() {
   return (
     <AuthProvider>
@@ -22,6 +23,8 @@ function App() {
               <Route path="/ForgotPassword" element={<ForgotPassword />} />
               <Route path="/Dashboard/*" element={<Dashboard />} />
               <Route path="/customer-dashboard/*" element={<CustomerDashboard />} />
+           
+
             </Routes>
           </Router>
         </div>
