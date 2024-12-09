@@ -7,11 +7,11 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const updateOrderStatus = async (orderId, StatusCode) => {
+export const updateOrderStatus = async (orderId, StatusCode,comments) => {
   // Update the inventory with the new quantity
   const { data, error } = await supabase
     .from('orders')
-    .update({ status_code : StatusCode })
+    .update({ status_code : StatusCode, comments })
     .eq('order_id', orderId);
 
   if (error) {

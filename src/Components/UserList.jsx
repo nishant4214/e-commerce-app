@@ -99,7 +99,7 @@ const UserList = () => {
               <TableCell>{user.mobile_no}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.address}</TableCell>
-              <TableCell>{user.created_at}</TableCell>
+              <TableCell>{new Date(user.created_at).toLocaleString()}</TableCell>
             </TableRow>
           ))}
         </TableBody>

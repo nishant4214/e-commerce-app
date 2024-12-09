@@ -16,7 +16,23 @@ import {
   Chip,
   CardContent,
   Card,
-  CardActions
+  CardActions,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+
+} from "@mui/material";
+
+import {
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import getOrderDetailsById from "../netlify/getOrderDetailsById"; // API call to fetch order details
 import getAllStatusCodes from "../netlify/getAllStatusCodes";
@@ -24,23 +40,24 @@ import getAllOrdersByUserId from "../netlify/getAllOrdersByUserId";
 import getAllCartItemsByUserId from "../netlify/getAllCartItemsByUserId";
 import { updateOrderStatus } from "../netlify/updateOrderStatus";
 import { useCart } from "../CartContext";
-import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 const AllOrders = () => {
   const user = sessionStorage.getItem('user');
-  const userObj = JSON.parse(user); 
+  const userObj = JSON.parse(user);
   const [orders, setOrders] = useState([]);
   const authToken = sessionStorage.getItem('authToken');
-  const { updateCart } = useCart();  // Access cart context
-  const [selectedOrderId, setSelectedOrderId] = useState(null);  // State to track the selected order
-  const [isOrderDetailsVisible, setIsOrderDetailsVisible] = useState(false);  // State to toggle view between All Orders and View Order
+  const { updateCart } = useCart(); // Access cart context
+  const [selectedOrderId, setSelectedOrderId] = useState(null); // State to track the selected order
+  const [isOrderDetailsVisible, setIsOrderDetailsVisible] = useState(false); // State to toggle view
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false); // State for cancel order dialog
+  const [selectedReason, setSelectedReason] = useState(""); // Selected cancel reason
+  const [otherReason, setOtherReason] = useState(""); // Other reason text
 
   const fetchUserCart = async () => {
     try {
       const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
-      
-      updateCart(fetchedUserCart.updatedCartItems);  // Update the cart count and items in context
+      updateCart(fetchedUserCart.updatedCartItems); // Update cart count and items in context
     } catch (error) {
       console.error("Error fetching user cart:", error);
     }
@@ -50,7 +67,7 @@ const AllOrders = () => {
     const fetchProducts = async () => {
       try {
         const fetchedOrders = await getAllOrdersByUserId(userObj.id);
-        setOrders(fetchedOrders.orders);  
+        setOrders(fetchedOrders.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -64,52 +81,89 @@ const AllOrders = () => {
 
   const handleViewOrder = (orderId) => {
     setSelectedOrderId(orderId);
-    setIsOrderDetailsVisible(true);  // Show the View Order component
+    setIsOrderDetailsVisible(true); // Show the View Order component
   };
-  const handleCancelOrder = async (orderId) => {
-    await updateOrderStatus(orderId,9);
-    setIsOrderDetailsVisible(false);  // Show the View Order component
 
+  const handleCancelOrder = (orderId) => {
+    setSelectedOrderId(orderId);
+    setIsCancelDialogOpen(true); // Open the cancel order dialog
+  };
+
+  const handleCancelSubmit = async () => {
+    const finalReason =
+      selectedReason === "Other" ? otherReason : selectedReason;
+
+    if (!finalReason) {
+      alert("Please provide a reason for cancellation.");
+      return;
+    }
+
+    try {
+      await updateOrderStatus(selectedOrderId, 9, finalReason); // Call the API with reason
+      alert("Order cancelled successfully.");
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.order_id === selectedOrderId
+            ? { ...order, order_status_codes: { status_name: "Cancelled" } }
+            : order
+        )
+      );
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("Failed to cancel the order.");
+    } finally {
+      setIsCancelDialogOpen(false);
+      setSelectedReason("");
+      setOtherReason("");
+    }
   };
 
   const handleBackToAllOrders = () => {
-    setIsOrderDetailsVisible(false);  // Hide the View Order component and show All Orders
+    setIsOrderDetailsVisible(false); // Hide the View Order component
   };
 
- 
   return (
     <Box p={4}>
       {isOrderDetailsVisible ? (
-        <ViewOrder orderId={selectedOrderId} onBack={handleBackToAllOrders} />
+        <ViewOrder
+          orderId={selectedOrderId}
+          onBack={handleBackToAllOrders}
+          isEditable={false}
+        />
       ) : (
         <>
           <Grid2 container spacing={3}>
             {Array.isArray(orders) && orders.length > 0 ? (
               orders.map((order) => (
                 <Grid2 item xs={12} sm={6} md={4} key={order.order_id}>
-                  <Card onClick={() => handleViewOrder(order.order_id)} sx={{ cursor: 'pointer' }}>
-                    <CardContent>
+                  <Card sx={{ cursor: "pointer" }}>
+                    <CardContent onClick={() => handleViewOrder(order.order_id)}>
                       <Typography variant="h6" fontWeight="bold" color="primary">
                         {order.order_number}
                       </Typography>
                       <Typography variant="body1" color="textSecondary">
                         Status: {order.order_status_codes.status_name}
                       </Typography>
-                      <Divider/>
+                      <Divider />
                       <Typography variant="body1" color="textSecondary">
                         Date: {new Date(order.order_date).toLocaleDateString()}
                       </Typography>
-                      <Chip label={`Amount: ${order.total_amount.toFixed(2)} INR`} color="primary" sx={{ marginTop: 2 }} />
+                      <Chip
+                        label={`Amount: ${order.total_amount.toFixed(2)} INR`}
+                        color="primary"
+                        sx={{ marginTop: 2 }}
+                      />
                     </CardContent>
                     <CardActions>
-                    {order.order_status_codes.status_name !== 'Cancelled' && (
-                        <Button size="small" color="error" 
-                            onClick={() => handleCancelOrder(order.order_id)}
-                            disabled={false}
-                            >
-                        Cancel Order
+                      {order.order_status_codes.status_name !== "Cancelled" && (
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => handleCancelOrder(order.order_id)}
+                        >
+                          Cancel Order
                         </Button>
-                    )}
+                      )}
                     </CardActions>
                   </Card>
                 </Grid2>
@@ -118,22 +172,82 @@ const AllOrders = () => {
               <Typography>No orders available.</Typography>
             )}
           </Grid2>
+
+          {/* Cancel Order Dialog */}
+          <Dialog
+            open={isCancelDialogOpen}
+            onClose={() => setIsCancelDialogOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>Cancel Order</DialogTitle>
+            <DialogContent>
+              <Typography gutterBottom>
+                Please select a reason for cancelling your order:
+              </Typography>
+              <RadioGroup
+                value={selectedReason}
+                onChange={(e) => setSelectedReason(e.target.value)}
+              >
+                {[
+                  "Changed my mind",
+                  "Found a better price",
+                  "Order placed by mistake",
+                  "Product not required anymore",
+                  "Other",
+                ].map((reason) => (
+                  <FormControlLabel
+                    key={reason}
+                    value={reason}
+                    control={<Radio />}
+                    label={reason}
+                  />
+                ))}
+              </RadioGroup>
+              {selectedReason === "Other" && (
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  value={otherReason}
+                  onChange={(e) => setOtherReason(e.target.value)}
+                  placeholder="Please specify your reason"
+                  sx={{ marginTop: 2 }}
+                />
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setIsCancelDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCancelSubmit}
+                variant="contained"
+                color="error"
+              >
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Box>
   );
 };
-const ViewOrder = ({ orderId, onBack }) => {
+
+const ViewOrder = ({ orderId, onBack, isEditable }) => {
     const [orderDetails, setOrderDetails] = useState({});
     const [statusCodes, setStatusCodes] = useState([]);
     const [loading, setLoading] = useState(true);
-  
+    const [newStatus, setNewStatus] = useState(0);
+    const [comments, setComments] = useState('');
+
+
     useEffect(() => {
       const fetchOrderDetails = async () => {
         try {
           const response = await getOrderDetailsById(orderId);
           const responseStatusCodes = await getAllStatusCodes();
-          console.log(JSON.stringify(response.order_data));
   
           setOrderDetails(response.order_data);
           setStatusCodes(responseStatusCodes.order_status_codes);
@@ -178,6 +292,23 @@ const ViewOrder = ({ orderId, onBack }) => {
     const activeStatusIndex = statusCodes.findIndex(
       (status) => status.status_code === status_code
     );
+
+    const handleStatusChange = (event) => {
+      setNewStatus(event.target.value);
+    };
+  
+    const handleSaveStatus = async () => {
+      if (newStatus) {
+        try {
+          await updateOrderStatus(orderId,newStatus,comments);
+          alert("Status updated successfully!");
+        } catch (error) {
+          console.error("Error updating status:", error);
+        }
+      } else {
+        alert("Please select a status.");
+      }
+    };
   
     return (
       <Box p={4}>
@@ -284,7 +415,7 @@ const ViewOrder = ({ orderId, onBack }) => {
                 </List>
                 </Grid2>
             </Grid2>
-            </Paper>
+        </Paper>
         {/* Current Status Progress */}
         <Paper elevation={6} sx={{ padding: 3, marginBottom: 3, backgroundColor: "#f0f0f0" }}>
           <Typography variant="h6" gutterBottom fontWeight="bold" color="primary">
@@ -295,7 +426,7 @@ const ViewOrder = ({ orderId, onBack }) => {
                 status_code, 
                 order_status_codes: { status_name: orderDetails.order_status_codes.status_name }, 
                 changed_at: new Date().toISOString(), // Optional: show "Now" for the current status 
-                comments: "Current Status" // Label it as the current status 
+                comments: orderDetails.comments// Label it as the current status 
             }].map((step, index) => (
                 <Step key={step.status_code} completed={index <= activeStatusIndex}>
                 <StepLabel
@@ -310,14 +441,54 @@ const ViewOrder = ({ orderId, onBack }) => {
                     <small style={{ color: "gray" }}>
                         {new Date(step.changed_at).toLocaleString()} {/* Format timestamp */}
                     </small>
+                    <br />
+                    <small style={{ color: "gray" }}>
+                        {step.comments} {/* Format timestamp */}
+                    </small>
                     </div>
                 </StepLabel>
                 </Step>
             ))}
             </Stepper>
         </Paper>
+        {isEditable? (
+          <Paper elevation={6} sx={{ padding: 3, marginBottom: 3, backgroundColor: "#f0f0f0" }}>
+          <FormControl fullWidth>
+            <InputLabel id="status-select-label">Change Status</InputLabel>
+            <Select
+              labelId="status-select-label"
+              value={newStatus}
+              onChange={handleStatusChange}
+              displayEmpty
+              sx={{ marginBottom: 2 }}
+            >
+              <MenuItem value="" disabled>
+                Select a new status
+              </MenuItem>
+              {statusCodes.map((status) => (
+                <MenuItem key={status.status_code} value={status.status_code}>
+                  {status.status_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+              fullWidth
+              margin="normal"
+              label="Comments"
+              name="comments"
+              onChange={(e) => setComments(e.target.value)}
+              required
+            />
+          <Button variant="contained" color="primary" onClick={handleSaveStatus}>
+            Update Order
+          </Button>
+        </Paper>
+        ):null}
+      
       </Box>
     );
   };
   
+
 export { AllOrders, ViewOrder };

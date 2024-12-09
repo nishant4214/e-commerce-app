@@ -27,6 +27,7 @@ import getProductCount from '../netlify/getProductCount';
 import BillingList from './BillingList';
 import UserList from './UserList';
 import clearSession from '../netlify/clearSession';
+import ChangeOrderStatus from './ChangeOrderStatus';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -96,6 +97,8 @@ export default function Dashboard() {
           { text: 'Billing', path: './billing' },
           { text: 'All Bills', path: './bill-list' },
           { text: 'All Users', path: './user-list' },
+          { text: 'All Orders', path: './order-list' },
+
         ].map((item, index) => (
           <ListItem key={item.text} disablePadding>
             <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -200,6 +203,8 @@ export default function Dashboard() {
               <Route path="/billing" element={<AddBillingForm />} />
               <Route path="/bill-list" element={<BillingList />} />
               <Route path="/user-list" element={<UserList />} />
+              <Route path="/order-list" element={<ChangeOrderStatus />} />
+
               {/* Other routes can be added here */}
           </Routes>
       </Box>
