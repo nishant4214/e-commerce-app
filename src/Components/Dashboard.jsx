@@ -28,6 +28,7 @@ import BillingList from './BillingList';
 import UserList from './UserList';
 import clearSession from '../netlify/clearSession';
 import ChangeOrderStatus from './ChangeOrderStatus';
+import getAllOrderCount from '../netlify/getAllOrderCount';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [open, setOpen] = React.useState(false);
   const [productCount, setProductCount] = React.useState(0);
   const [inventoryCount, setInventoryCount] = React.useState(0);
+  const [allOrderCount, setAllOrderCount] = React.useState(0);
   const [totalTodaysSales, setTotalTodaysSales] = React.useState(0);
   const authToken = sessionStorage.getItem('authToken');
   const user = sessionStorage.getItem('user');
@@ -66,10 +68,14 @@ export default function Dashboard() {
     const fetchCounts = async () => {
       const productCount = await getProductCount();
       const inventoryCount = await getInventoryCount();
+      const allOrderCount = await getAllOrderCount();
+
       const totalTodaysSalesAmount = await getTotalTodaysSales();
       setProductCount(productCount);
       setInventoryCount(inventoryCount);
       setTotalTodaysSales(totalTodaysSalesAmount);
+      setAllOrderCount(allOrderCount);
+
     };
 
     fetchCounts();
@@ -120,6 +126,12 @@ export default function Dashboard() {
     navigate('/'); // Redirect to the login page
     return null; // Do not render the Dashboard if not authenticated
   }
+
+  const handleBoxClick = (route) => {
+    // navigate("/dashboard/order-list"); // Redirect to the desired route
+    navigate(route); // Navigate to the passed route
+
+  };
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -183,17 +195,21 @@ export default function Dashboard() {
         {/* Conditionally render dashboard count cards */}
         {showDashboardCountCards && (
           <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 3 }}>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/add-product')}>
               <Typography variant="h6">Products</Typography>
               <Typography variant="h4">{productCount}</Typography>
             </Box>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/manage-inventory')}>
               <Typography variant="h6">Inventory</Typography>
               <Typography variant="h4">{inventoryCount}</Typography>
             </Box>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/bill-list')}>
               <Typography variant="h6">Today's Sales</Typography>
               <Typography variant="h4">{totalTodaysSales.toFixed(2)} INR</Typography>
+            </Box>
+            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/order-list')}>
+              <Typography variant="h6">Today's Orders</Typography>
+              <Typography variant="h4">{allOrderCount}</Typography>
             </Box>
           </Box>
         )}

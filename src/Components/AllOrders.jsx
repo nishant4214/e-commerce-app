@@ -34,14 +34,14 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+
 import getOrderDetailsById from "../netlify/getOrderDetailsById"; // API call to fetch order details
 import getAllStatusCodes from "../netlify/getAllStatusCodes";
 import getAllOrdersByUserId from "../netlify/getAllOrdersByUserId";
 import getAllCartItemsByUserId from "../netlify/getAllCartItemsByUserId";
 import { updateOrderStatus } from "../netlify/updateOrderStatus";
 import { useCart } from "../CartContext";
-import ImageListItem from '@mui/material/ImageListItem';
-import ImageListItemBar from '@mui/material/ImageListItemBar';
 const AllOrders = () => {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user);
@@ -283,6 +283,8 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
       transaction_id,
       order_date,
       total_amount,
+      sgst,
+      cgst,
       delivery_addresses,
       order_items,
       status_code,
@@ -329,36 +331,44 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
           <Typography variant="h6" gutterBottom fontWeight="bold" color="primary">
             Items Ordered
           </Typography>
-          <Grid2 container spacing={3}>
-            {order_items.map((item, index) => (
-                <Grid2 item xs={12} md={6} key={index}>
-                <Paper elevation={3} sx={{ padding: 2, backgroundColor: "#fff" }}>
-                    <ImageListItem>
-                    <img
-                        src={item.products.image_url || '/path/to/default-image.jpg'}
-                        alt={item.products.name}
-                        style={{
-                        objectFit: 'contain',
-                        maxWidth: '100%',
-                        maxHeight: 200,
-                        width: 'auto',
-                        height: 'auto',
-                        }}
-                    />
-                    <ImageListItemBar
-                        title={item.products.name}
-                        subtitle={`Price: ${item.products.price.toFixed(2)} INR`}
-                        position="below"
-                        style={{ background: 'rgba(0, 0, 0, 0.5)', color: '#fff' }}
-                    />
-                    </ImageListItem>
-                    <Typography variant="h6" color="secondary" mt={1}>
-                    Quantity: {item.quantity} | Total: {(item.products.price * item.quantity).toFixed(2)} INR
-                    </Typography>
-                </Paper>
-                </Grid2>
-            ))}
-            </Grid2>
+          
+        <TableContainer component={Paper} sx={{ marginTop: 2, borderRadius: "8px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>#</TableCell>
+                <TableCell align="left" sx={{ fontWeight: "bold" }}>Product Name</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>Price (₹)</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>Quantity</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>Total (₹)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {order_items.map((item, index) => (
+                <TableRow key={index} hover>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="left">{item.products.name}</TableCell>
+                  <TableCell align="center">{item.products.price.toFixed(2)}</TableCell>
+                  <TableCell align="center">{item.quantity}</TableCell>
+                  <TableCell align="center">{(item.products.price * item.quantity).toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
+              <TableRow hover>   
+                  <TableCell colSpan={4} align="right">SGST :</TableCell>
+                  <TableCell align="center">{sgst.toFixed(2)}</TableCell>
+              </TableRow>
+              <TableRow hover>   
+                  <TableCell colSpan={4} align="right">CGST :</TableCell>
+                  <TableCell align="center">{cgst.toFixed(2)}</TableCell>
+              </TableRow>
+              <TableRow hover>   
+                  <TableCell colSpan={4} align="right">Grand Total :</TableCell>
+                  <TableCell align="center">{total_amount.toFixed(2)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+
         </Paper>
         <Paper elevation={6} sx={{ padding: 3, marginBottom: 3, backgroundColor: "#f0f0f0" }}>
             <Grid2 container spacing={2}>

@@ -13,6 +13,9 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import { CartProvider, useCart } from '../CartContext';
+
+import { Row, Col, Container } from "react-bootstrap"; // Bootstrap grid system
+
 const ShowAllProducts = () => {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
@@ -93,49 +96,59 @@ React.useEffect(() => {
   
   return (
     <>
-        <List>
-        {Array.isArray(products) && products.length > 0 ? (
-        <ImageList cols={3} rowHeight={200} gap={16}>
-            {products.map((prod) => (
-            <ImageListItem key={prod.id}>
-                <img
-                src={prod.image_url || '/path/to/default-image.jpg'}
-                alt={prod.name}
-                style={{
-                    objectFit: 'contain',
-                    maxWidth: '100%',
-                    maxHeight: 200,
-                    width: 'auto',
-                    height: 'auto',
-                }}
-                />
-                <ImageListItemBar
-                title={prod.name}
-                subtitle={`Price: ${prod.price} INR`}
-                position="bottom"
-                style={{ background: 'rgba(0, 0, 0, 0.5)' }}
-                />
-                {/* Add to Cart / Remove from Cart Button */}
-                <IconButton
-                onClick={() => isInCart(prod) ? handleRemoveFromCart(prod) : handleAddToCart(prod)}
-                style={{
-                    position: 'absolute',
-                    bottom: 60,
-                    left: '90%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    color: '#fff',
-                }}
-                >
-                {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
-                </IconButton>
-            </ImageListItem>
-            ))}
-        </ImageList>
-        ) : (
-            <Typography>No products available.</Typography>
-        )}
-        </List>
+    <Container fluid className="py-4">
+      {Array.isArray(products) && products.length > 0 ? (
+        <Row className="g-3">
+          {products.map((prod) => (
+            <Col xs={12} sm={6} md={4} lg={3} key={prod.id}>
+              <div className="card shadow-sm border-0 rounded">
+                <div className="image-container">
+                  <img
+                    src={prod.image_url || "/path/to/default-image.jpg"}
+                    alt={prod.name}
+                    className="card-img-top img-fluid"
+                    style={{
+                      objectFit: "cover",
+                      maxHeight: "200px",
+                      borderTopLeftRadius: "8px",
+                      borderTopRightRadius: "8px",
+                    }}
+                  />
+                  <IconButton
+                    onClick={() =>
+                      isInCart(prod) ? handleRemoveFromCart(prod) : handleAddToCart(prod)
+                    }
+                    style={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      color: "#fff",
+                    }}
+                  >
+                    {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
+                  </IconButton>
+                </div>
+                <div className="card-body text-center">
+                  <Typography variant="h6" className="card-title">
+                    {prod.name}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className="text-muted"
+                    style={{ marginBottom: "0.5rem" }}
+                  >
+                    Price: {prod.price} INR
+                  </Typography>
+                </div>
+              </div>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <Typography>No products available.</Typography>
+      )}
+    </Container>
     </>
   );
 };

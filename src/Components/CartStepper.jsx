@@ -307,6 +307,36 @@ const handleDecrease = (prod) => {
 
   return (
     <Box sx={{ width: '100%' }}>
+    {cartItems.length === 0  ? null :(  <Grid2>
+              <div style={{
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-start',  // Align to the left
+                padding: '16px',           // Add some padding for spacing
+                backgroundColor: '#f5f5f5', // Light background color to make it stand out
+                borderRadius: '8px',       // Round the corners
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+                width: '100%',             // Ensure full width for responsiveness
+                maxWidth: '500px',         // Limit the maximum width to avoid stretching
+                marginTop: '20px',         // Add top margin for spacing from other content
+              }}>
+                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                  Total: <span style={{ fontSize: '18px', color: '#333' }}>{cartTotal} INR</span>
+                </Typography>
+                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                  CGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{CGSTValue} INR</span>
+                </Typography>
+                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                  SGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{SGSTValue} INR</span>
+                </Typography>
+                <Typography variant="h5" style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '16px', color: '#e91e63' }}>
+                  Grand Total: <span style={{ fontSize: '30px', color: '#e91e63' }}>{GrandTotal} INR</span>
+                </Typography>
+              </div>
+            </Grid2>
+        )}
+  
+          <br/>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps = {};
@@ -335,64 +365,95 @@ const handleDecrease = (prod) => {
             <div>
             <Grid2 container spacing={3}>
             {cartItems.map((prod) => (
-              <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <img
-                    src={prod.products?.image_url || prod.image_url} // Will pick the first non-null image URL
-                    alt={prod.products?.name || prod.name} // Will pick the first non-null name
-                    style={{
-                      width: '150px',  // Set fixed width
-                      height: '150px', // Set fixed height
-                      objectFit: 'cover', // Maintain aspect ratio but fill the container
-                      borderRadius: '8px', // Optional: adds rounded corners to the image
-                    }}
-                  />
-                  <Typography variant="h6">{prod.products?.name || prod.name}</Typography>
-                  <Typography variant="body1">Price: {prod.products?.price || prod.price} INR</Typography>
-                  <Typography variant="body1">Total: {((prod.products?.price || prod.price) * prod.quantity).toFixed(2)} INR</Typography>
+            <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  transition: "transform 0.3s ease-in-out",
+                }}
+                className="cart-item"
+              >
+                <img
+                  src={prod.products?.image_url || prod.image_url} // Will pick the first non-null image URL
+                  alt={prod.products?.name || prod.name} // Will pick the first non-null name
+                  style={{
+                    width: "150px", // Fixed width
+                    height: "150px", // Fixed height
+                    objectFit: "cover", // Maintain aspect ratio but fill the container
+                    borderRadius: "8px", // Adds rounded corners to the image
+                  }}
+                />
+                <Typography
+                  variant="h6"
+                  style={{ marginTop: "10px", fontWeight: "bold", textAlign: "center" }}
+                >
+                  {prod.products?.name || prod.name}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  Price: {prod.products?.price || prod.price} INR
+                </Typography>
+                <Typography variant="body1" color="primary" style={{ fontWeight: "bold" }}>
+                  Total: {((prod.products?.price || prod.price) * prod.quantity).toFixed(2)} INR
+                </Typography>
 
-                  <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                    <Button variant="contained" color="primary" onClick={() => handleDecrease(prod)}>-</Button>
-                    <Typography variant="h6" style={{ margin: '0 10px' }}>{prod.quantity}</Typography>
-                    <Button variant="contained" color="primary" onClick={() => handleIncrease(prod)}>+</Button>
-                  </div>
-                  <div style={{ marginTop: '10px' }}>
-                    <IconButton color="secondary" onClick={() => handleRemoveFromCart(prod)}>
-                      <RemoveShoppingCartIcon />
-                    </IconButton>
-                  </div>
+                {/* Quantity controls */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: "10px",
+                    gap: "10px",
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleDecrease(prod)}
+                    style={{ minWidth: "40px" }}
+                  >
+                    -
+                  </Button>
+                  <Typography variant="h6" style={{ margin: "0 10px" }}>
+                    {prod.quantity}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleIncrease(prod)}
+                    style={{ minWidth: "40px" }}
+                  >
+                    +
+                  </Button>
                 </div>
-                    
-              </Grid2>
-            ))}
-            </Grid2>
-            <Grid2>
-              <div style={{
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'flex-start',  // Align to the left
-                padding: '16px',           // Add some padding for spacing
-                backgroundColor: '#f5f5f5', // Light background color to make it stand out
-                borderRadius: '8px',       // Round the corners
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
-                width: '100%',             // Ensure full width for responsiveness
-                maxWidth: '500px',         // Limit the maximum width to avoid stretching
-                marginTop: '20px',         // Add top margin for spacing from other content
-              }}>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                  Total: <span style={{ fontSize: '18px', color: '#333' }}>{cartTotal} INR</span>
-                </Typography>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                  CGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{CGSTValue} INR</span>
-                </Typography>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                  SGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{SGSTValue} INR</span>
-                </Typography>
-                <Typography variant="h5" style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '16px', color: '#e91e63' }}>
-                  Grand Total: <span style={{ fontSize: '30px', color: '#e91e63' }}>{GrandTotal} INR</span>
-                </Typography>
+
+                {/* Remove button */}
+                <div style={{ marginTop: "10px" }}>
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleRemoveFromCart(prod)}
+                    style={{
+                      border: "1px solid #f00",
+                      padding: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: "#ffeded",
+                      transition: "background-color 0.3s",
+                    }}
+                  >
+                    <RemoveShoppingCartIcon />
+                  </IconButton>
+                </div>
               </div>
             </Grid2>
+          ))}
+            </Grid2>
+            
 
             </div>
           )}
@@ -530,7 +591,7 @@ const handleDecrease = (prod) => {
             Back
           </Button>
           <Button onClick={handleNext}>
-            {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            {activeStep === steps.length - 1 ? "" : "Next"}
           </Button>
 
           </Box>
@@ -542,7 +603,7 @@ const handleDecrease = (prod) => {
           {/* <Button onClick={handleNext}>Finish</Button> */}
           <PaymentComponent amountProps={GrandTotal} cgst={CGSTValue} sgst={SGSTValue} shippingAddress={shippingAddress} />
           <Button onClick={handleNext}>
-            {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            {activeStep === steps.length - 1 ? "" : "Next"}
           </Button>
         </Box>
       ) : (

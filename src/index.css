@@ -11,3 +11,21 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
