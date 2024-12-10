@@ -29,6 +29,7 @@ import UserList from './UserList';
 import clearSession from '../netlify/clearSession';
 import ChangeOrderStatus from './ChangeOrderStatus';
 import getAllOrderCount from '../netlify/getAllOrderCount';
+import PerformanceOverview from "./PerformanceOverview";
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -194,6 +195,7 @@ export default function Dashboard() {
         {/* Dashboard Cards for Counts */}
         {/* Conditionally render dashboard count cards */}
         {showDashboardCountCards && (
+          <div className="dashboard">
           <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 3 }}>
             <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/add-product')}>
               <Typography variant="h6">Products</Typography>
@@ -212,6 +214,10 @@ export default function Dashboard() {
               <Typography variant="h4">{allOrderCount}</Typography>
             </Box>
           </Box>
+          <Box sx={{ width: '100%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/order-list')}>
+            <PerformanceOverview />
+          </Box>
+          </div>
         )}
           <Routes>
               <Route path="/add-product" element={<AddProductForm />} />

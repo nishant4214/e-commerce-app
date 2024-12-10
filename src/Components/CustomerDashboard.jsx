@@ -18,6 +18,9 @@ import CartStepper from './CartStepper';
 import ShowAllProducts from './ShowAllProducts';
 import { CartProvider, useCart } from '../CartContext';
 import {AllOrders, ViewOrder} from './AllOrders';
+import OrdersSummary from './OrdersSummary';
+import Box from '@mui/material/Box';
+
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
   colorSchemeSelector: 'class',
@@ -65,7 +68,7 @@ const NAVIGATION = [
       title: 'Main items',
     },
     {
-      segment: 'dashboard',
+      segment: 'customer-dashboard',
       title: 'Dashboard',
       icon: <DashboardIcon />,
     },
@@ -117,7 +120,6 @@ const NAVIGATION = [
   }, [router.pathname]);
   
   return (
-
     <AppProvider
       navigation={NAVIGATION}
       router={router}
@@ -128,25 +130,24 @@ const NAVIGATION = [
         {auth && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignContent:'right' }}>
             {/* User info menu */}
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-              <Typography variant="h7" component="div" sx={{ flexGrow: 1 }} >
-                {userObj.username} {/* Display the logged-in user's name */}
-              </Typography>
-            </div>
+            
           </div>
         )}
 
         <PageContainer>
+          {router.pathname === '/customer-dashboard' && (
+            <div className="dashboard">
+              <div style={{ textAlign: "center", margin: "20px" }}>
+                <h1>🌟 Hello, {userObj.username}! 🌟</h1>
+                <p>Your shopping adventure awaits! 🚀</p>
+              </div>
+              <div className="dashboard-header">
+                <Box sx={{ width: '40%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} >
+                  <OrdersSummary userId={userObj.id} />
+                </Box>
+              </div>
+            </div>
+          )}
           {router.pathname === '/Products' && (
             <ShowAllProducts/>
           )}
