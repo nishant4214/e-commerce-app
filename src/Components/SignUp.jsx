@@ -107,7 +107,7 @@ function SignUp(props) {
         autoComplete="off"
       >
         <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
-            sign Up to E-Commerce
+            Sign Up to E-Commerce
         </Typography>
         <TextField id="fullName" label="Full Name" variant="outlined"
             autoComplete="Full Name" 

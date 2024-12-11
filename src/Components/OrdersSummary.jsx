@@ -13,7 +13,9 @@ const OrdersSummary = ({ userId }) => {
     const fetchData = async () => {
       try {
         const result = await getAllOrderCountByUserId(userId); // Fetch data
+        console.log(result)
         if (result) {
+
           setChartData(result.chartData); // Update the chart data state
         }
       } catch (error) {
@@ -42,15 +44,14 @@ const OrdersSummary = ({ userId }) => {
   };
 
   return (
-    <div style={{ width: "100%", margin: "0 auto", textAlign: "center" }}>
-      {chartData ? (
-        <Pie data={chartData} options={options} />
+    <div>
+    {chartData && chartData.datasets[0].data.some((count) => count > 0) ? (
+          <Pie data={chartData} options={options} />
       ) : (
-        <p>Loading chart...</p>
-      )}
-      <h3>Orders</h3>
-
+        <div></div>
+    )}
     </div>
+  
   );
 };
 

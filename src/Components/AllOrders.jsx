@@ -67,6 +67,7 @@ const AllOrders = () => {
     const fetchProducts = async () => {
       try {
         const fetchedOrders = await getAllOrdersByUserId(userObj.id);
+        console.log(fetchedOrders);
         setOrders(fetchedOrders.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -155,7 +156,7 @@ const AllOrders = () => {
                       />
                     </CardContent>
                     <CardActions>
-                      {order.order_status_codes.status_name !== "Cancelled" && (
+                      {order.status_code < 4 && (
                         <Button
                           size="small"
                           color="error"
@@ -302,8 +303,16 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
     const handleSaveStatus = async () => {
       if (newStatus) {
         try {
-          await updateOrderStatus(orderId,newStatus,comments);
-          alert("Status updated successfully!");
+          const response = await updateOrderStatus(orderId,newStatus,comments);
+          if (response && 'error' in response) {
+            // If the response contains an error, display the error message
+            alert(response.error);
+          } else {
+            // Handle unexpected cases (e.g., response doesn't have data or error)
+            alert("Status updated successfully!");
+            
+          }
+
         } catch (error) {
           console.error("Error updating status:", error);
         }

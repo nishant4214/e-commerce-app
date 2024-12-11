@@ -107,7 +107,7 @@ const NAVIGATION = [
     await clearSession(userObj.id); // Clear session data
     setAuth(false); // Update auth state
     sessionStorage.clear();
-    navigate('/'); // Redirect to login or home page
+    navigate('/Login'); // Redirect to login or home page
   };
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -142,8 +142,9 @@ const NAVIGATION = [
                 <p>Your shopping adventure awaits! 🚀</p>
               </div>
               <div className="dashboard-header">
-                <Box sx={{ width: '40%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} >
+              <Box sx={{ width: '40%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} >
                   <OrdersSummary userId={userObj.id} />
+                  <h5>Orders</h5>
                 </Box>
               </div>
             </div>

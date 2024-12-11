@@ -24,6 +24,9 @@ const getAllOrderCountByUserId = async (userId) => {
       Dispatched: 0,
       Cancelled: 0,
       Delivered: 0,
+      Failed: 0,
+      Rejected: 0,
+      Returned: 0,
     };
 
     orders.forEach((order) => {
@@ -43,6 +46,15 @@ const getAllOrderCountByUserId = async (userId) => {
         case "Delivered":
           statusCounts.Delivered++;
           break;
+        case "Failed":
+          statusCounts.Failed++;
+          break;
+        case "Rejected":
+          statusCounts.Rejected++;
+          break;
+        case "Returned":
+          statusCounts.Returned++;
+          break;
         default:
           break;
       }
@@ -61,6 +73,9 @@ const getAllOrderCountByUserId = async (userId) => {
             "#FFCE56", // Dispatched (Yellow)
             "#FF9F40", // Cancelled (Orange)
             "#4BC0C0", // Delivered (Green)
+            "#C70039", // Failed (Crimson)
+            "#581845", // Rejected (Dark Purple)
+            "#DAF7A6", // Returned (Light Green)
           ],
           hoverOffset: 6,
         },

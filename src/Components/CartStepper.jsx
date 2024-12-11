@@ -61,7 +61,6 @@ const CartStepper = () => {
   const fetchAddresses = async () => {
     try {
       const data = await getAllAddressByUserId(userObj.id)
-      console.log(data.delivery_addresses);
       setAddressList(data.delivery_addresses); // Store the addresses
     } catch (error) {
       console.error("Error fetching addresses:", error);
@@ -195,9 +194,6 @@ const CartStepper = () => {
     // Check if the user and required fields are filled
     if (!userObj.id || !newAddress.streetAddress || !selectedCity || !selectedState || !newAddress.postalCode || !newAddress.contactNumber) {
       alert("Please fill in all fields");
-      console.log(newAddress);
-      console.log(selectedState);
-      console.log(selectedCity);
       return;  // Early return if basic fields are missing
     }
   

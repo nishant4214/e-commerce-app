@@ -33,7 +33,6 @@ const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress }) => {
     if (transactionId) {
       const uniqueOrderNumber = await createOrder(userObj.id, cgst, sgst, amountProps, shippingAddress, transactionId);
 
-      console.log(uniqueOrderNumber);
       if(!uniqueOrderNumber){
         alert(`error submitting order: ${transactionId}`);
         return;

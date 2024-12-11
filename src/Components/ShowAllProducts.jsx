@@ -130,7 +130,7 @@ React.useEffect(() => {
                   </IconButton>
                 </div>
                 <div className="card-body text-center">
-                  <Typography variant="h6" className="card-title">
+                  <Typography variant="h6" className="card-title" style={{fontWeight:'bold'}}>
                     {prod.name}
                   </Typography>
                   <Typography

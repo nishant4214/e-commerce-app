@@ -63,7 +63,7 @@ export default function Dashboard() {
     await clearSession(userObj.id)
     setAuth(false);
     sessionStorage.clear();
-    navigate('/'); // Redirect to home or login
+    navigate('/Login'); // Redirect to home or login
   };
   React.useEffect(() => {
     const fetchCounts = async () => {
