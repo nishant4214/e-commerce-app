@@ -1,0 +1,73 @@
+.hero-section {
+    position: relative;
+    height: 80vh;
+    background-size: cover;
+    background-position: center;
+    animation: slide-background 10s linear infinite;
+    overflow: hidden;
+  }
+  
+  /* Keyframe animation for sliding backgrounds */
+  @keyframes slide-background {
+    0% {
+      background-image: url('../images/hero_bg.jpg');
+    }
+    33% {
+      background-image: url('../images/bg_1.jpg');
+    }
+    66% {
+      background-image: url('../images/bg_2.jpg');
+    }
+    100% {
+      background-image: url('../images/hero_bg_2.jpg');
+    }
+  }
+  
+  .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.5); /* Optional background for text readability */
+    padding: 20px;
+    border-radius: 10px;
+    animation: fade-in 2s ease-in-out;
+  }
+  
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero-content a {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .hero-content a:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Optional Fade-in animation for text */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
