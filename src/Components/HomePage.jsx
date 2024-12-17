@@ -1,8 +1,9 @@
 import React from "react";
 import getAllProducts from '../netlify/getAllProducts';
 import Typography from '@mui/material/Typography';
-import { Row, Col, Container } from "react-bootstrap"; // Bootstrap grid system
-import "../styles/heroSection.css"
+import { Row, Col, Container } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import "../styles/heroSection.css";
 const HomePage = () => {
   const [products, setProducts] = React.useState([]);
   
@@ -58,9 +59,9 @@ const HomePage = () => {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/e-commerce-app/Login">
-                  Shop
-                </a>
+                <Link to="/Login" className="nav-link">
+                    Login
+                </Link>
               </li>
             </ul>
           </div>
@@ -70,7 +71,9 @@ const HomePage = () => {
         <div class="hero-content">
             <h1>Welcome to E-Commerce</h1>
             <p>Your trusted shopping destination with amazing deals.</p>
-            <a href="/e-commerce-app/Login" class="btn">Shop Now</a>
+            <Link to="/Login"  className="btn">
+                Shop Now
+            </Link>
         </div>
         </div>
 
