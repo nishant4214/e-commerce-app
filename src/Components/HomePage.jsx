@@ -37,26 +37,17 @@ const HomePage = () => {
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container">
-          <a className="navbar-brand" href="/">
+      
+          <Link to="/" className="navbar-brand">
             <strong>E-Commerce</strong>
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+          </Link>
+       
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <a className="nav-link" href="/e-commerce-app/">
-                  Home
-                </a>
+                <Link to="/" className="nav-link">
+                    Home
+                </Link>
               </li>
               <li className="nav-item">
                 <Link to="/Login" className="nav-link">
@@ -118,7 +109,7 @@ const HomePage = () => {
                 ))}
                 </Row>
             ) : (
-                <Typography>No products available.</Typography>
+              <Typography>No products available.</Typography>
             )}
             </Container>
         </div>
@@ -154,15 +145,14 @@ const HomePage = () => {
       {/* Footer */}
       <footer className="footer bg-dark text-white py-4">
       <div className="container text-center" style={{ textAlign: "left", padding: "20px" }}>
-    <div className="container">
-        <h4 style={{ fontWeight: "bold" }}>Get in Touch</h4>
-        <p>Email: <a href="mailto:support@ecommerce.com" style={{ color: "#007bff" }}>support@ecommerce.com</a></p>
-        <p>Phone: <a href="tel:+18001234567" style={{ color: "#007bff" }}>+1 800 123 4567</a></p>
-        <p>Address: XYZ ABC, Thane</p>
-    </div>
-    <p>&copy; {new Date().getFullYear()} E-Commerce. All rights reserved.</p>
-    </div>
-
+        <div className="container">
+            <h4 style={{ fontWeight: "bold" }}>Get in Touch</h4>
+            <p>Email: <a href="mailto:support@ecommerce.com" style={{ color: "#007bff" }}>support@ecommerce.com</a></p>
+            <p>Phone: <a href="tel:+18001234567" style={{ color: "#007bff" }}>+1 800 123 4567</a></p>
+            <p>Address: XYZ ABC, Thane</p>
+        </div>
+          <p>&copy; {new Date().getFullYear()} E-Commerce. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );

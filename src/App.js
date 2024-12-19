@@ -11,6 +11,7 @@ import 'process';
 import { AuthProvider } from './AuthContext';
 import { CartProvider, useCart }  from './CartContext';
 import HomePage from './Components/HomePage';
+import ProductDetailsPage from './Components/ProductDetailsPage';
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
               <Route path="/ForgotPassword" element={<ForgotPassword />} />
               <Route path="/Dashboard/*" element={<Dashboard />} />
               <Route path="/customer-dashboard/*" element={<CustomerDashboard />} />
+              <Route path="/product/:id" element={<ProductDetailsPage />} />
+
             </Routes>
           </Router>
         </div>

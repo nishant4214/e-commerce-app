@@ -31,8 +31,6 @@ const CartStepper = () => {
   const [shippingAddress, setShippingAddress] = React.useState(0);
   const [selectedState, setSelectedState] = React.useState(0);
   const [selectedCity, setSelectedCity] = React.useState(0);
-
-
   const [addressList, setAddressList] = React.useState([]);
   const [newAddress, setNewAddress] = React.useState({
     streetAddress: '',
@@ -151,7 +149,9 @@ const CartStepper = () => {
       ...prevState,
       [name]: value
     }));
-  };const validateForm = () => {
+  };
+  
+  const validateForm = () => {
     let formErrors = {};
     let isValid = true;
   
@@ -303,7 +303,8 @@ const handleDecrease = (prod) => {
 
   return (
     <Box sx={{ width: '100%' }}>
-    {cartItems.length === 0  ? null :(  <Grid2>
+    {cartItems.length === 0  ? null :(  
+            <Grid2>
               <div style={{
                 display: 'flex', 
                 flexDirection: 'column', 
@@ -570,7 +571,6 @@ const handleDecrease = (prod) => {
               error={Boolean(errors.contactNumber)}
               helperText={errors.contactNumber}
             />
-
               <Button onClick={handleAddNewAddress} variant="contained" color="primary">Add Address</Button>
               <Button onClick={() => setIsAddingAddress(false)} sx={{ ml: 2 }}>Cancel</Button>
             </>

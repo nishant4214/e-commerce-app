@@ -13,6 +13,8 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import { CartProvider, useCart } from '../CartContext';
+import ProductDetailsPage from './ProductDetailsPage';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Row, Col, Container } from "react-bootstrap"; // Bootstrap grid system
 
@@ -22,6 +24,7 @@ const ShowAllProducts = () => {
   const [products, setProducts] = React.useState([]);
   const authToken = sessionStorage.getItem('authToken');
   const { cartContextCount, cartItems, updateCart } = useCart();  // Access cart context
+  const navigate = useNavigate();
 
   const fetchUserCart = async () => {
     try {
@@ -107,6 +110,7 @@ React.useEffect(() => {
                     src={prod.image_url || "/path/to/default-image.jpg"}
                     alt={prod.name}
                     className="card-img-top img-fluid"
+                    onClick={() => navigate(`/product/${prod.id}`)} 
                     style={{
                       objectFit: "cover",
                       maxHeight: "200px",
