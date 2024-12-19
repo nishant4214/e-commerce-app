@@ -67,7 +67,7 @@ const AllOrders = () => {
     const fetchProducts = async () => {
       try {
         const fetchedOrders = await getAllOrdersByUserId(userObj.id);
-        console.log(fetchedOrders);
+        console.log(JSON.stringify(fetchedOrders.orders));
         setOrders(fetchedOrders.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -133,46 +133,62 @@ const AllOrders = () => {
         />
       ) : (
         <>
-          <Grid2 container spacing={3}>
-            {Array.isArray(orders) && orders.length > 0 ? (
-              orders.map((order) => (
-                <Grid2 item xs={12} sm={6} md={4} key={order.order_id}>
-                  <Card sx={{ cursor: "pointer" }}>
-                    <CardContent onClick={() => handleViewOrder(order.order_id)}>
-                      <Typography variant="h6" fontWeight="bold" color="primary">
-                        {order.order_number}
-                      </Typography>
-                      <Typography variant="body1" color="textSecondary">
-                        Status: {order.order_status_codes.status_name}
-                      </Typography>
-                      <Divider />
-                      <Typography variant="body1" color="textSecondary">
-                        Date: {new Date(order.order_date).toLocaleDateString()}
-                      </Typography>
-                      <Chip
-                        label={`Amount: ${order.total_amount.toFixed(2)} INR`}
-                        color="primary"
-                        sx={{ marginTop: 2 }}
-                      />
-                    </CardContent>
-                    <CardActions>
-                      {order.status_code < 4 && (
-                        <Button
-                          size="small"
-                          color="error"
-                          onClick={() => handleCancelOrder(order.order_id)}
-                        >
-                          Cancel Order
-                        </Button>
-                      )}
-                    </CardActions>
-                  </Card>
-                </Grid2>
-              ))
-            ) : (
-              <Typography>No orders available.</Typography>
-            )}
-          </Grid2>
+        <Grid2 container spacing={3}>
+          {Array.isArray(orders) && orders.length > 0 ? (
+            orders.map((order) => (
+              <Grid2 item xs={12} sm={6} md={4} key={order.order_id}>
+                <Card sx={{ cursor: "pointer" }}>
+                  <CardContent onClick={() => handleViewOrder(order.order_id)}>
+                    <Typography variant="h6" fontWeight="bold" color="primary">
+                      {order.order_number}
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Status: {order.order_status_codes.status_name}
+                    </Typography>
+                    <Divider />
+                    <Typography variant="body1" color="textSecondary">
+                      Date: {new Date(order.order_date).toLocaleDateString()}
+                    </Typography>
+                    <Chip
+                      label={`Amount: ${order.total_amount.toFixed(2)} INR`}
+                      color="primary"
+                      sx={{ marginTop: 2 }}
+                    />
+                    <Box sx={{ marginTop: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+                      {order.order_items.map((item, index) => (
+                        <img
+                          key={index}
+                          src={item.products.image_url || "https://via.placeholder.com/100"}
+                          alt={item.products.name}
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            borderRadius: "5px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </CardContent>
+                  <CardActions>
+                    {order.status_code < 4 && (
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() => handleCancelOrder(order.order_id)}
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
+                  </CardActions>
+                </Card>
+              </Grid2>
+            ))
+          ) : (
+            <Typography>No orders available.</Typography>
+          )}
+        </Grid2>
+
 
           {/* Cancel Order Dialog */}
           <Dialog

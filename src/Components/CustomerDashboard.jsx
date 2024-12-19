@@ -6,9 +6,6 @@ import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
-import Typography from '@mui/material/Typography';
-import { IconButton } from '@mui/material';
-import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clearSession from '../netlify/clearSession';
@@ -20,6 +17,8 @@ import { CartProvider, useCart } from '../CartContext';
 import {AllOrders, ViewOrder} from './AllOrders';
 import OrdersSummary from './OrdersSummary';
 import Box from '@mui/material/Box';
+import Badge from '@mui/material/Badge';
+
 
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
@@ -83,12 +82,16 @@ const NAVIGATION = [
         <div>
           Cart
           {/* Show the count next to Cart */}
-          <span style={{ marginLeft: 8, fontSize: '1.2rem', color: 'red' }}>
-            {cartContextCount > 0 ? `(${cartContextCount})` : ''}
+          <span style={{ marginLeft: 10, fontSize: '1.2rem', color: 'red' }}>
+                     
           </span>
+          
         </div>
       ),
-      icon: <ShoppingCartIcon />,
+      icon: <div>{cartContextCount > 0 ?<Badge  badgeContent=  { `${cartContextCount}`} color="primary">
+              <ShoppingCartIcon />
+            </Badge>:<ShoppingCartIcon />}</div>
+      ,
     },
     {
       segment: 'Orders',
