@@ -13,7 +13,7 @@ const AddProductForm = () => {
     image_url: '',
   });
   const [products, setProducts] = useState([]);
-  const { authToken } = useContext(AuthContext);
+  const authToken = sessionStorage.getItem('authToken');
   
 
   useEffect(() => {
