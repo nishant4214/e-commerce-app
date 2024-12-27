@@ -22,7 +22,7 @@ import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ProfilePage from './Profile';
-
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 
 const demoTheme = extendTheme({
@@ -80,7 +80,7 @@ const NAVIGATION = [
     {
       segment: 'Profile',
       title: 'Profile',
-      icon: <CategoryIcon />,
+      icon: <AccountCircleIcon />,
     },
     {
       segment: 'Products',
