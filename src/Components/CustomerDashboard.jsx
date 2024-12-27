@@ -21,6 +21,7 @@ import {AllOrders, ViewOrder} from './AllOrders';
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import ProfilePage from './Profile';
 
 
 
@@ -75,6 +76,11 @@ const NAVIGATION = [
       segment: 'customer-dashboard',
       title: 'Dashboard',
       icon: <DashboardIcon />,
+    },
+    {
+      segment: 'Profile',
+      title: 'Profile',
+      icon: <CategoryIcon />,
     },
     {
       segment: 'Products',
@@ -165,6 +171,9 @@ const NAVIGATION = [
                 </Box>
               </div> */}
             </div>
+          )}
+          {router.pathname === '/Profile' && (
+            <ProfilePage/>
           )}
           {router.pathname === '/Products' && (
             <ShowAllProducts/>
