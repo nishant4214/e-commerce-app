@@ -10,8 +10,7 @@ import { RemoveShoppingCart as RemoveShoppingCartIcon } from '@mui/icons-materia
 import { updateCartItemCount } from '../netlify/updateCartItemCount';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { removeFromCart } from '../netlify/removeFromCart';
-import { CartProvider, useCart } from '../CartContext';
-import { useWishlist } from "../WishlistContext";
+import {  useCart } from '../CartContext';
 import {   TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import getAllAddressByUserId from '../netlify/getAllAddressByUserId';
 import addUserAddress from '../netlify/addUserAddress';
@@ -333,7 +332,6 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
     </div>
   </Grid2>
 )}
-
     <br/>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
@@ -375,8 +373,8 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                     className="buy-now-item"
                   >
                     <img
-                      src={buyNowProduct.products.image_url} // Image for Buy Now product
-                      alt={buyNowProduct.products.name} // Name for Buy Now product
+                      src={buyNowProduct.products?.image_url || buyNowProduct.image_url} // Image for Buy Now product
+                      alt={buyNowProduct.products?.name || buyNowProduct.name}// Name for Buy Now product
                       style={{
                         width: "150px",
                         height: "150px",
@@ -388,16 +386,14 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                       variant="h6"
                       style={{ marginTop: "10px", fontWeight: "bold", textAlign: "center" }}
                     >
-                      {buyNowProduct.products.name}
-                    </Typography>
+                        {buyNowProduct.products?.name || buyNowProduct.name}
+                        </Typography>
                     <Typography variant="body1" color="textSecondary">
-                      Price: {buyNowProduct.products.price} INR
+                      Price: {buyNowProduct.products?.price || buyNowProduct.price} INR
                     </Typography>
                     <Typography variant="body1" color="primary" style={{ fontWeight: "bold" }}>
-                      Total: {(buyNowProduct.products.price * buyNowProduct.quantity).toFixed(2)} INR
+                      Total: {(buyNowProduct.products?.price || buyNowProduct.price * buyNowProduct.quantity).toFixed(2)} INR
                     </Typography>
-
-                    {/* Quantity controls */}
                     <div
                       style={{
                         display: "flex",

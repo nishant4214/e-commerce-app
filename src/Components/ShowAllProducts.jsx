@@ -10,14 +10,13 @@ import getAllProducts from '../netlify/getAllProducts';
 import {  useCart } from '../CartContext';
 import { useNavigate } from 'react-router-dom';
 import addToWishlist from '../netlify/addToWishlist';
-
 import { Row, Col, Container } from "react-bootstrap"; // Bootstrap grid system
 import { useWishlist } from '../WishlistContext';
 import { removeFromWishlist } from '../netlify/removeFromWishlist';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import getAllWishListItemsByUserId from '../netlify/getAllWishListItemsByUserId';
-
+import CartStepper from './CartStepper';
 const ShowAllProducts = () => {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
@@ -25,6 +24,8 @@ const ShowAllProducts = () => {
   const authToken = sessionStorage.getItem('authToken');
   const {  cartItems, updateCart } = useCart();  // Access cart context
   const { wishlistItems, updateWishlist} = useWishlist();
+  const[isBuyNow, setBuyNow] = React.useState(false);
+  const[buyNowProduct, setBuyNowProduct] = React.useState(null);
   const navigate = useNavigate();
 
   const fetchUserCart = async () => {
@@ -137,90 +138,103 @@ const ShowAllProducts = () => {
     fetchData();
   }, []);
 
+  const handleBuyNow = (product) => {
+    // Optionally pass product data to the next page via state
+    // setAnchorEl('/customer-dashboard/Cart');
+
+    console.log(product);
+    setBuyNow(true);
+    setBuyNowProduct(product)
+  };
+
   
   return (
-    <>
-    <Container fluid className="py-4">
-      {Array.isArray(products) && products.length > 0 ? (
-        <Row className="g-3">
-          {products.map((prod) => (
-            <Col xs={12} sm={6} md={4} lg={3} key={prod.id}>
-              <div className="card shadow-sm border-0 rounded">
-                <div className="image-container">
-                  <img
-                    src={prod.image_url || "/path/to/default-image.jpg"}
-                    alt={prod.name}
-                    className="card-img-top img-fluid"
-                    onClick={() => navigate(`/product/${prod.id}`)} 
-                    style={{
-                      objectFit: "cover",
-                      maxHeight: "200px",
-                      borderTopLeftRadius: "8px",
-                      borderTopRightRadius: "8px",
-                    }}
-                  />
-                  <IconButton
-                    onClick={() =>
-                      isInCart(prod) ? handleRemoveFromCart(prod) : handleAddToCart(prod)
-                    }
-                    style={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      backgroundColor: "rgba(0, 0, 0, 0.6)",
-                      color: "#fff",
-                    }}
-                    title='Add to cart'
-                  >
-                    {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
-                  </IconButton>
-                  <IconButton
-                    onClick={() =>
-                      isInWishList(prod) ? handleRemoveFromWishlist(prod) : handleAddToWishlist(prod)
-                    }
-                    style={{
-                      position: "absolute",
-                      top: 50,
-                      right: 10,
-                      backgroundColor: "rgba(0, 0, 0, 0.6)",
-                      color: "#fff",
-                    }}
-
-                    title='Add to wishlist'
-                  >
-                    {isInWishList(prod) ? <FavoriteBorderIcon /> : <FavoriteIcon />}
-                  </IconButton>
-                </div>
-                
-                <div className="card-body text-center">
-                  <Typography variant="h6" className="card-title" style={{fontWeight:'bold'}}>
-                    {prod.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    className="text-muted"
-                    style={{ marginBottom: "0.5rem" }}
-                  >
-                    Price: {prod.price} INR
-                  </Typography>
-                  <Button
-                      variant="outlined"
-                      color="secondary"
-                      size="small"
-                      onClick={() => navigate(`/product/${prod.products.id}`)}
-                    >
-                      Buy Now
-                    </Button>
-                </div>
-              </div>
-            </Col>
-          ))}
-        </Row>
+    <div>
+      {isBuyNow ? (
+        <CartStepper isBuyNow={true}  buyNowProduct={buyNowProduct}/>
       ) : (
-        <Typography>No products available.</Typography>
+      <Container fluid className="py-4">
+        {Array.isArray(products) && products.length > 0 ? (
+          <Row className="g-3">
+            {products.map((prod) => (
+              <Col xs={12} sm={6} md={4} lg={3} key={prod.id}>
+                <div className="card shadow-sm border-0 rounded">
+                  <div className="image-container">
+                    <img
+                      src={prod.image_url || "/path/to/default-image.jpg"}
+                      alt={prod.name}
+                      className="card-img-top img-fluid"
+                      onClick={() => navigate(`/product/${prod.id}`)} 
+                      style={{
+                        objectFit: "cover",
+                        maxHeight: "200px",
+                        borderTopLeftRadius: "8px",
+                        borderTopRightRadius: "8px",
+                      }}
+                    />
+                    <IconButton
+                      onClick={() =>
+                        isInCart(prod) ? handleRemoveFromCart(prod) : handleAddToCart(prod)
+                      }
+                      style={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        backgroundColor: "rgba(0, 0, 0, 0.6)",
+                        color: "#fff",
+                      }}
+                      title='Add to cart'
+                    >
+                      {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
+                    </IconButton>
+                    <IconButton
+                      onClick={() =>
+                        isInWishList(prod) ? handleRemoveFromWishlist(prod) : handleAddToWishlist(prod)
+                      }
+                      style={{
+                        position: "absolute",
+                        top: 50,
+                        right: 10,
+                        backgroundColor: "rgba(0, 0, 0, 0.6)",
+                        color: "#fff",
+                      }}
+
+                      title='Add to wishlist'
+                    >
+                      {isInWishList(prod) ? <FavoriteBorderIcon /> : <FavoriteIcon />}
+                    </IconButton>
+                  </div>
+                  
+                  <div className="card-body text-center">
+                    <Typography variant="h6" className="card-title" style={{fontWeight:'bold'}}>
+                      {prod.name}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      className="text-muted"
+                      style={{ marginBottom: "0.5rem" }}
+                    >
+                      Price: {prod.price} INR
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                        onClick={() =>handleBuyNow(prod)}
+                      >
+                        Buy Now
+                      </Button>
+                  </div>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <Typography>No products available.</Typography>
+        )}
+      </Container>
       )}
-    </Container>
-    </>
+    </div>
   );
 };
 
