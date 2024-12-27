@@ -30,6 +30,7 @@ import clearSession from '../netlify/clearSession';
 import ChangeOrderStatus from './ChangeOrderStatus';
 import getAllOrderCount from '../netlify/getAllOrderCount';
 import PerformanceOverview from "./PerformanceOverview";
+import ProfilePage from './Profile';
 
 export default function Dashboard() {
   const [auth, setAuth] = React.useState(true);
@@ -180,8 +181,14 @@ export default function Dashboard() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleAuth}>Logout</MenuItem>
+              <MenuItem style={{ justifyContent: "center" }}>
+                <Link to="./profile" style={{ textDecoration: "none", color: "inherit" }}>
+                  Profile
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleAuth} style={{ justifyContent: "center" }}>
+                Logout
+              </MenuItem>
               </Menu>
             </div>
           )}
@@ -196,27 +203,27 @@ export default function Dashboard() {
         {/* Conditionally render dashboard count cards */}
         {showDashboardCountCards && (
           <div className="dashboard">
-          <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 3 }}>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/add-product')}>
-              <Typography variant="h6">Products</Typography>
-              <Typography variant="h4">{productCount}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 3 }}>
+              <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/add-product')}>
+                <Typography variant="h6">Products</Typography>
+                <Typography variant="h4">{productCount}</Typography>
+              </Box>
+              <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/manage-inventory')}>
+                <Typography variant="h6">Inventory</Typography>
+                <Typography variant="h4">{inventoryCount}</Typography>
+              </Box>
+              <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/bill-list')}>
+                <Typography variant="h6">Today's Sales</Typography>
+                <Typography variant="h4">{totalTodaysSales.toFixed(2)} INR</Typography>
+              </Box>
+              <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/order-list')}>
+                <Typography variant="h6">Today's Orders</Typography>
+                <Typography variant="h4">{allOrderCount}</Typography>
+              </Box>
             </Box>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/manage-inventory')}>
-              <Typography variant="h6">Inventory</Typography>
-              <Typography variant="h4">{inventoryCount}</Typography>
+            <Box sx={{ width: '100%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/order-list')}>
+              <PerformanceOverview />
             </Box>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/bill-list')}>
-              <Typography variant="h6">Today's Sales</Typography>
-              <Typography variant="h4">{totalTodaysSales.toFixed(2)} INR</Typography>
-            </Box>
-            <Box sx={{ width: '30%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/order-list')}>
-              <Typography variant="h6">Today's Orders</Typography>
-              <Typography variant="h4">{allOrderCount}</Typography>
-            </Box>
-          </Box>
-          <Box sx={{ width: '100%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} onClick={() => handleBoxClick('/dashboard/order-list')}>
-            <PerformanceOverview />
-          </Box>
           </div>
         )}
           <Routes>
@@ -226,8 +233,7 @@ export default function Dashboard() {
               <Route path="/bill-list" element={<BillingList />} />
               <Route path="/user-list" element={<UserList />} />
               <Route path="/order-list" element={<ChangeOrderStatus />} />
-
-              {/* Other routes can be added here */}
+              <Route path="/profile" element={<ProfilePage />} />
           </Routes>
       </Box>
     </Box>
