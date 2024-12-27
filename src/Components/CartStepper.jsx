@@ -7,7 +7,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Grid2, IconButton } from '@mui/material';
 import { RemoveShoppingCart as RemoveShoppingCartIcon } from '@mui/icons-material';
-import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import { updateCartItemCount } from '../netlify/updateCartItemCount';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { removeFromCart } from '../netlify/removeFromCart';
@@ -20,7 +19,6 @@ import getAllStates from '../netlify/getAllStates';
 import getAllCityByStateId from '../netlify/getAllCityByStateId';
 import PaymentComponent from './paymentGateway';
 import { updateWishlistItemCount } from '../netlify/updateWishlistItemCount';
-import getWishListIById from '../netlify/getWishListIById';
 
 const steps = ['Review Cart', 'Shipping Details', 'Payment'];
 
@@ -44,7 +42,6 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
     postalCode: '',
     contactNumber:''
   });
-  
 
   const [errors, setErrors] = React.useState({
     streetAddress: '',
@@ -58,7 +55,6 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
   const { cartContextCount, cartItems, updateCart } = useCart(); 
-  const { wishlistContextCount, wishlistItems, updateWishlist, fetchUserWishlist} = useWishlist();
 
   const fetchAddresses = async () => {
     try {
@@ -237,12 +233,12 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   const handleIncrease = async (prod) => {
     if (isBuyNow) {
       const updateQuantity = itemQuantity + 1;
-      const updatedBuyNowProduct = { ...buyNowProduct, quantity: buyNowProduct.quantity + 1, updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)   };
+      const updatedBuyNowProduct = { ...buyNowProduct, quantity: updateQuantity, updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)   };
       //updateWishlist(updatedBuyNowProduct);
       
 
       setItemQuantity(itemQuantity+1)
-      calculateTotal([updatedBuyNowProduct]); 
+      calculateTotal([{ ...buyNowProduct, quantity: updateQuantity }]); 
     } else {
       const updatedCart = cartItems.map(item => 
         item.id === prod.id ? { ...item, quantity: item.quantity + 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity + 1) } : item
@@ -257,10 +253,10 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
       if(itemQuantity>1)
       {
         const updateQuantity = itemQuantity - 1;
-        const updatedBuyNowProduct = { ...buyNowProduct, quantity: buyNowProduct.quantity - 1,updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)  };
+        const updatedBuyNowProduct = { ...buyNowProduct, quantity: updateQuantity, updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)  };
         //updateWishlist(updatedBuyNowProduct);
         setItemQuantity(itemQuantity-1)
-        calculateTotal([updatedBuyNowProduct]); 
+        calculateTotal([{ ...buyNowProduct, quantity: updateQuantity }]); 
       }
     }else{
       const updatedCart = cartItems.map(item => 
