@@ -1,6 +1,7 @@
 // Import React and necessary hooks
 import React, { useState } from 'react';
 import '../styles/ProfilePage.css'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 const ProfilePage = () => {
 
   const user = sessionStorage.getItem('user');
@@ -67,7 +68,7 @@ const ProfilePage = () => {
               Bio:
               <textarea
                 name="bio"
-                value={userObj.bio}
+                value={userObj.address}
                 onChange={handleChange}
               />
             </label> */}
@@ -79,6 +80,7 @@ const ProfilePage = () => {
             <h2>{userObj.username}</h2>
             <p>Email: {userObj.email}</p>
             <p>Phone: {userObj.mobile_no}</p>
+            {/* <p>Address: {userObj.address}</p> */}
             {/* <button onClick={handleEditToggle}>Edit Profile</button> */}
           </div>
         )}
