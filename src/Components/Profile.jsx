@@ -9,7 +9,6 @@ const ProfilePage = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...user });
-  console.log(userObj)
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     if (!isEditing) {
