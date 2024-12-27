@@ -10,13 +10,16 @@ import ForgotPassword from './Components/ForgotPassword';
 import 'process';
 import { AuthProvider } from './AuthContext';
 import { CartProvider, useCart }  from './CartContext';
+import { WishlistProvider, useWishlist }  from './WishlistContext';
+
 import HomePage from './Components/HomePage';
 import ProductDetailsPage from './Components/ProductDetailsPage';
 
 function App() {
   return (
     <AuthProvider>
-      <CartProvider> {/* Wrap the entire app inside CartProvider */}
+      <CartProvider> 
+        <WishlistProvider>
         <div className="App">
           <Router basename="/e-commerce-app">
             <Routes>
@@ -31,6 +34,7 @@ function App() {
             </Routes>
           </Router>
         </div>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

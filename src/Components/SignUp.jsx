@@ -84,7 +84,6 @@ function SignUp(props) {
     const userDetails = await registerUser(email, data.encPass,fullName,mobileNo,address,2);
     userDetails != null ?  navigate('../') : alert('Please enter valid user details')
   };
-
   
   return (
     <AppTheme {...props}>
@@ -106,6 +105,7 @@ function SignUp(props) {
         onSubmit={handleSubmit}
         autoComplete="off"
       >
+        
         <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
             Sign Up to E-Commerce
         </Typography>
@@ -143,9 +143,11 @@ function SignUp(props) {
         />
 
         <Button type='submit' variant="contained">Sign Up</Button>
-        <Link to="/" style={{ textDecoration: 'none', color: '#891214' }}>
+        <Link to="/Login" style={{ textDecoration: 'none', color: '#891214' }}>
            Cancel
         </Link>
+        <Link to='/' style={{ textDecoration: 'none', color: '#891214' }}>Go to Home</Link>
+
       </Box>
       </Card>
     </Container>

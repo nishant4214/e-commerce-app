@@ -229,11 +229,13 @@ export default function SignIn(props) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography sx={{ textAlign: 'center' }}>
               Don&apos;t have an account?{' '}
-           <Link to="/SignUp" style={{ textDecoration: 'none', color: '#891214' }}>
-             Sign Up
-           </Link>
+              <Link to="/SignUp" style={{ textDecoration: 'none', color: '#891214' }}>
+                Sign Up
+              </Link>
             </Typography>
           </Box>
+          <Link to='/' style={{ textDecoration: 'none', color: '#891214' }}>Go to Home</Link>
+
         </Card>
       </SignInContainer>
     </AppTheme>

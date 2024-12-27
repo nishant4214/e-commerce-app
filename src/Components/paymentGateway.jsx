@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react'; // Import QRCodeCanvas
 import createOrder from '../netlify/createOrder';
-const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress }) => {
+
+const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress,isBuyNow,productId }) => {
   const [amount, setAmount] = useState(amountProps);
   const payeeName = 'Nishant Sudam Pande'; // Payee name
   const upiID = 'nishant.pande123-3@okaxis'; // UPI ID
@@ -20,7 +21,6 @@ const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress }) => {
       cu: 'INR', // Currency
     };
 
-    // Return the UPI link with encoded parameters
     return `upi://pay?${new URLSearchParams(upi).toString()}`;
   };
 
@@ -29,20 +29,20 @@ const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress }) => {
   };
 
    // Handle form submission of transaction ID
-   const handleSubmitTransactionId = async () => {
+  const handleSubmitTransactionId = async () => {
     if (transactionId) {
-      const uniqueOrderNumber = await createOrder(userObj.id, cgst, sgst, amountProps, shippingAddress, transactionId);
+      const  uniqueOrderNumber = await createOrder(userObj.id, cgst, sgst, amountProps, shippingAddress, transactionId, isBuyNow,productId);
 
       if(!uniqueOrderNumber){
         alert(`error submitting order: ${transactionId}`);
         return;
       }
-      alert(`Transaction ID submitted: ${transactionId}`);
-      // Reset the input field after submission
-      setTransactionId('');
-    } else {
-      alert('Please enter a valid transaction ID');
-    }
+        alert(`Transaction ID submitted: ${transactionId}`);
+        // Reset the input field after submission
+        setTransactionId('');
+      } else {
+        alert('Please enter a valid transaction ID');
+      }
   };
 
   return (
@@ -51,7 +51,6 @@ const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress }) => {
         Please scan below QR code for payment. After successful transaction, enter the Transaction ID and submit.
       </h2>
 
-      {/* Two-column layout for QR code and Transaction ID input */}
       <div style={styles.row}>
         {/* Left column - QR Code */}
         <div style={styles.qrCodeContainer}>
@@ -79,13 +78,10 @@ const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress }) => {
           </button>
         </div>
       </div>
-
-      
     </div>
   );
 };
 
-// Styling for the component
 const styles = {
   container: {
     textAlign: 'center',

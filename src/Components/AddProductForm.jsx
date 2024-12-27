@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ImageList, ImageListItemBar, ImageListItem } from '@mui/material';
+import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ImageList, ImageListItemBar, ImageListItem, IconButton } from '@mui/material';
 import getAllProducts from '../netlify/getAllProducts';
 import addProduct from '../netlify/addProduct';
 import updateProduct from '../netlify/updateProduct';
 import AuthContext from '../AuthContext';
+import EditIcon from "@mui/icons-material/Edit";
 
 const AddProductForm = () => {
   const [product, setProduct] = useState({
@@ -144,7 +145,7 @@ const AddProductForm = () => {
       {Array.isArray(products) && products.length > 0 ? (
       <ImageList cols={3} rowHeight={200} gap={16}>
         {products.map((prod) => (
-          <ImageListItem key={prod.id} onClick={() => handleEdit(prod)}>
+          <ImageListItem key={prod.id} >
             <img
               src={prod.image_url || defaultImage}
               alt={prod.name}
@@ -161,8 +162,18 @@ const AddProductForm = () => {
               subtitle={`Price: ${prod.price} INR`}
               position="bottom"
               style={{ background: 'rgba(0, 0, 0, 0.5)' }} // Optional: for better visibility
+              actionIcon={
+          <IconButton
+            aria-label="edit"
+            style={{ color: "white" }}
+            onClick={() => handleEdit(prod)}
+          >
+            <EditIcon />
+          </IconButton>
+        }
+
             />
-          </ImageListItem>
+            </ImageListItem>
         ))}
       </ImageList>
     ) : (

@@ -12,8 +12,8 @@ const OrdersSummary = ({ userId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await getAllOrderCountByUserId(userId); // Fetch data
-        console.log(result)
+        //const result = await getAllOrderCountByUserId(userId); // Fetch data
+        const result = null;
         if (result) {
 
           setChartData(result.chartData); // Update the chart data state

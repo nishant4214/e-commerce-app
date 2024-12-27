@@ -194,6 +194,7 @@ function ForgotPassword(props) {
               onSubmit={isOtpSent ? handlePasswordResetSubmit : handleEmailSubmit}
               autoComplete="off"
             >
+              
               <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
                 {isOtpSent ? 'Reset Your Password' : 'Forgot Password'}
               </Typography>
@@ -255,10 +256,12 @@ function ForgotPassword(props) {
               {message && <p>{message}</p>}
 
               {!isOtpSent && (
-                <Link to="/" style={{ textDecoration: 'none', color: '#891214' }}>
+                <Link to="/Login" style={{ textDecoration: 'none', color: '#891214' }}>
                   Cancel
                 </Link>
               )}
+              <Link to='/' style={{ textDecoration: 'none', color: '#891214' }}>Go to Home</Link>
+
             </Box>
           </Card>
         </Container>

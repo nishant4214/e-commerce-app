@@ -12,15 +12,19 @@ import { updateCartItemCount } from '../netlify/updateCartItemCount';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { removeFromCart } from '../netlify/removeFromCart';
 import { CartProvider, useCart } from '../CartContext';
+import { useWishlist } from "../WishlistContext";
 import {   TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import getAllAddressByUserId from '../netlify/getAllAddressByUserId';
 import addUserAddress from '../netlify/addUserAddress';
 import getAllStates from '../netlify/getAllStates';
 import getAllCityByStateId from '../netlify/getAllCityByStateId';
 import PaymentComponent from './paymentGateway';
+import { updateWishlistItemCount } from '../netlify/updateWishlistItemCount';
+import getWishListIById from '../netlify/getWishListIById';
+
 const steps = ['Review Cart', 'Shipping Details', 'Payment'];
 
-const CartStepper = () => {
+const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [cartTotal, setCartTotal] = React.useState(0);
   const [CGSTValue, setCGSTValue] = React.useState(0);
@@ -32,6 +36,7 @@ const CartStepper = () => {
   const [selectedState, setSelectedState] = React.useState(0);
   const [selectedCity, setSelectedCity] = React.useState(0);
   const [addressList, setAddressList] = React.useState([]);
+  const [itemQuantity, setItemQuantity] = React.useState(1);
   const [newAddress, setNewAddress] = React.useState({
     streetAddress: '',
     cityId: 0,
@@ -39,7 +44,7 @@ const CartStepper = () => {
     postalCode: '',
     contactNumber:''
   });
-
+  
 
   const [errors, setErrors] = React.useState({
     streetAddress: '',
@@ -49,12 +54,11 @@ const CartStepper = () => {
     contactNumber: '',
   });
 
-  const [isAddingAddress, setIsAddingAddress] = React.useState(false); // To toggle between view and form
-
-
+  const [isAddingAddress, setIsAddingAddress] = React.useState(false); 
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
-  const { cartContextCount, cartItems, updateCart } = useCart();  // Access cartCount and cartItems from context
+  const { cartContextCount, cartItems, updateCart } = useCart(); 
+  const { wishlistContextCount, wishlistItems, updateWishlist, fetchUserWishlist} = useWishlist();
 
   const fetchAddresses = async () => {
     try {
@@ -65,7 +69,6 @@ const CartStepper = () => {
     }
   };
 
-  
   const fetchStates = async () => {
     try {
       const allStates = await getAllStates();
@@ -74,7 +77,6 @@ const CartStepper = () => {
       console.error("Error fetching states:", error);
     }
   };
-
     
   const fetchCities = async (stateId) => {
     try {
@@ -85,46 +87,26 @@ const CartStepper = () => {
     }
   };
   
-
   const isStepOptional = (step) => step === 1;
 
   const isStepSkipped = (step) => false;
 
   const handleNext = () => {
-    // Validation for Cart Step (Step 0)
-    if (activeStep === 0) {
-      if (cartItems.length === 0) {
-        alert("Your cart is empty. Please add items to proceed.");
-        return;
-      }
+    if (activeStep === 0 && (isBuyNow ? !buyNowProduct : cartItems.length === 0)) {
+      alert('Please add items to the cart or select a product to buy.');
+      return;
     }
-  
-    // Validation for Shipping Step (Step 1)
-    if (activeStep === 1) {
-      if (shippingAddress === 0 && !isAddingAddress) {
-        alert("Please select an address or add a new address.");
-        return;
-      }
-      if ((isAddingAddress) && (!newAddress.streetAddress || !selectedCity || !selectedState || !newAddress.postalCode || !newAddress.contactNumber)) {
-        alert("Please fill in all the address fields.");
-        return;
-      }
+
+    if (activeStep === 1 && shippingAddress === 0 && !isAddingAddress) {
+      alert('Please select or add a new address.');
+      return;
     }
-  
-    // Validation for Payment Step (Step 2)
-    if (activeStep === 2) {
-      // Add your payment validation here if needed
-      // For example, ensure the user has entered payment details
-    }
-  
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
   
-
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-
 
   const handleSelectAddress = (event) => {
     const addressId = event.target.value;
@@ -134,7 +116,7 @@ const CartStepper = () => {
   const handleSelectState = async (event) => {
     const stateId = event.target.value;
     setSelectedState(stateId);
-    await fetchCities(stateId);  // Pass the new stateId directly to fetchCities
+    await fetchCities(stateId);
   }
 
   const handleSelectCity = async (event) => {
@@ -209,8 +191,8 @@ const CartStepper = () => {
       const address_id = await addUserAddress(userObj.id, newAddress.streetAddress, selectedCity, selectedState, newAddress.postalCode, newAddress.contactNumber);
       
       if (address_id) {
-        fetchAddresses(); // Assuming fetchAddresses refreshes the list of addresses
-        setIsAddingAddress(false);  // Close the address form
+        fetchAddresses(); 
+        setIsAddingAddress(false);  
         setNewAddress({ streetAddress: '', cityId: 0, stateId: 0, postalCode: '', contactNumber: '' }); // Clear form
       } else {
         alert("Failed to add address.");
@@ -220,7 +202,6 @@ const CartStepper = () => {
       alert("There was an error adding your address.");
     }
   };
-  
 
   const calculateTotal = (cartItems) => {
     let total = 0;
@@ -241,7 +222,6 @@ const CartStepper = () => {
     setGrandTotal(grandTotal.toFixed(2));
   };
   
-  
   const fetchData = async () => {
     try {
       const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
@@ -254,24 +234,44 @@ const CartStepper = () => {
     }
   };
 
-  
-const handleIncrease = (prod) => {
-  const updatedCart = cartItems.map(item => 
-    item.id === prod.id ? { ...item, quantity: item.quantity + 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity + 1) } : item
-  );
-  updateCart(updatedCart);
-  calculateTotal(updatedCart);  // Recalculate total
-};
+  const handleIncrease = async (prod) => {
+    if (isBuyNow) {
+      const updateQuantity = itemQuantity + 1;
+      const updatedBuyNowProduct = { ...buyNowProduct, quantity: buyNowProduct.quantity + 1, updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)   };
+      //updateWishlist(updatedBuyNowProduct);
+      
 
-const handleDecrease = (prod) => {
-  const updatedCart = cartItems.map(item => 
-    item.id === prod.id && item.quantity > 1
-      ? { ...item, quantity: item.quantity - 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity - 1) }
-      : item
-  );
-  updateCart(updatedCart);
-  calculateTotal(updatedCart);  // Recalculate total
-};
+      setItemQuantity(itemQuantity+1)
+      calculateTotal([updatedBuyNowProduct]); 
+    } else {
+      const updatedCart = cartItems.map(item => 
+        item.id === prod.id ? { ...item, quantity: item.quantity + 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity + 1) } : item
+      );
+      updateCart(updatedCart);
+      calculateTotal(updatedCart);
+    }
+  };
+  
+  const handleDecrease = async (prod) => {
+    if (isBuyNow) {
+      if(itemQuantity>1)
+      {
+        const updateQuantity = itemQuantity - 1;
+        const updatedBuyNowProduct = { ...buyNowProduct, quantity: buyNowProduct.quantity - 1,updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)  };
+        //updateWishlist(updatedBuyNowProduct);
+        setItemQuantity(itemQuantity-1)
+        calculateTotal([updatedBuyNowProduct]); 
+      }
+    }else{
+      const updatedCart = cartItems.map(item => 
+        item.id === prod.id && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1, updatedItem: updateCartItemCount(item.cart_item_id, item.quantity - 1) }
+          : item
+      );
+      updateCart(updatedCart);
+      calculateTotal(updatedCart);
+    }
+  };
 
   const handleReset = () => {
     setActiveStep(0);
@@ -279,20 +279,24 @@ const handleDecrease = (prod) => {
 
   const handleRemoveFromCart = async (prod) => {
     const updatedCart = cartItems.filter(item => item.id !== prod.id);
-    updateCart(updatedCart); // Update cart in context
+    updateCart(updatedCart); 
 
     await removeFromCart(prod.id,false);
     fetchData();
     sessionStorage.setItem('product', JSON.stringify(updatedCart));
     sessionStorage.setItem('cartCount', updatedCart.length);
-
   };
   
+  
   React.useEffect(() => {
-    calculateTotal(cartItems);
-    fetchAddresses();
+    if (isBuyNow && buyNowProduct) {
 
-  }, []);
+      calculateTotal([{ ...buyNowProduct, quantity: 1 }]);
+    } else {
+      calculateTotal(cartItems);
+    }
+    fetchAddresses();   
+  }, [isBuyNow, buyNowProduct, cartItems]);
 
   React.useEffect(() => {
     if (isAddingAddress) {
@@ -303,37 +307,38 @@ const handleDecrease = (prod) => {
 
   return (
     <Box sx={{ width: '100%' }}>
-    {cartItems.length === 0  ? null :(  
-            <Grid2>
-              <div style={{
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'flex-start',  // Align to the left
-                padding: '16px',           // Add some padding for spacing
-                backgroundColor: '#f5f5f5', // Light background color to make it stand out
-                borderRadius: '8px',       // Round the corners
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
-                width: '100%',             // Ensure full width for responsiveness
-                maxWidth: '500px',         // Limit the maximum width to avoid stretching
-                marginTop: '20px',         // Add top margin for spacing from other content
-              }}>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                  Total: <span style={{ fontSize: '18px', color: '#333' }}>{cartTotal} INR</span>
-                </Typography>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                  CGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{CGSTValue} INR</span>
-                </Typography>
-                <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                  SGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{SGSTValue} INR</span>
-                </Typography>
-                <Typography variant="h5" style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '16px', color: '#e91e63' }}>
-                  Grand Total: <span style={{ fontSize: '30px', color: '#e91e63' }}>{GrandTotal} INR</span>
-                </Typography>
-              </div>
-            </Grid2>
-        )}
-  
-          <br/>
+    {(cartItems.length > 0 || isBuyNow) && (
+  <Grid2>
+    <Typography variant="h6">
+      {isBuyNow ? 'Product for Buy Now' : 'Your Cart'}
+    </Typography>
+    <div style={{
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'flex-start', 
+      padding: '16px', 
+      backgroundColor: 'white', 
+      borderRadius: '8px', 
+      width: '100%', 
+      marginTop: '20px',
+    }}>
+      <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+        Total: <span style={{ fontSize: '18px', color: '#333' }}>{cartTotal} INR</span>
+      </Typography>
+      <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+        CGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{CGSTValue} INR</span>
+      </Typography>
+      <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+        SGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{SGSTValue} INR</span>
+      </Typography>
+      <Typography variant="h5" style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '16px', color: '#e91e63' }}>
+        Grand Total: <span style={{ fontSize: '30px', color: '#e91e63' }}>{GrandTotal} INR</span>
+      </Typography>
+    </div>
+  </Grid2>
+)}
+
+    <br/>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps = {};
@@ -356,104 +361,177 @@ const handleDecrease = (prod) => {
         // Cart step
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Your Cart</Typography>
-          {cartItems.length === 0 ? (
+          {(isBuyNow && buyNowProduct) ? (
+            <div>
+              <Grid2 container spacing={3}>
+                <Grid2 item xs={12} sm={6} md={4} key={buyNowProduct.id}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      transition: "transform 0.3s ease-in-out",
+                    }}
+                    className="buy-now-item"
+                  >
+                    <img
+                      src={buyNowProduct.products.image_url} // Image for Buy Now product
+                      alt={buyNowProduct.products.name} // Name for Buy Now product
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Typography
+                      variant="h6"
+                      style={{ marginTop: "10px", fontWeight: "bold", textAlign: "center" }}
+                    >
+                      {buyNowProduct.products.name}
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Price: {buyNowProduct.products.price} INR
+                    </Typography>
+                    <Typography variant="body1" color="primary" style={{ fontWeight: "bold" }}>
+                      Total: {(buyNowProduct.products.price * buyNowProduct.quantity).toFixed(2)} INR
+                    </Typography>
+
+                    {/* Quantity controls */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: "10px",
+                        gap: "10px",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleDecrease(buyNowProduct)}
+                        style={{ minWidth: "40px" }}
+                      >
+                        -
+                      </Button>
+                      <Typography variant="h6" style={{ margin: "0 10px" }}>
+                        {itemQuantity}
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleIncrease(buyNowProduct)}
+                        style={{ minWidth: "40px" }}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                </Grid2>
+              </Grid2>
+            </div>
+          ) : cartItems.length === 0 ? (
             <Typography>No items in your cart.</Typography>
           ) : (
             <div>
-            <Grid2 container spacing={3}>
-            {cartItems.map((prod) => (
-            <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                  transition: "transform 0.3s ease-in-out",
-                }}
-                className="cart-item"
-              >
-                <img
-                  src={prod.products?.image_url || prod.image_url} // Will pick the first non-null image URL
-                  alt={prod.products?.name || prod.name} // Will pick the first non-null name
-                  style={{
-                    width: "150px", // Fixed width
-                    height: "150px", // Fixed height
-                    objectFit: "cover", // Maintain aspect ratio but fill the container
-                    borderRadius: "8px", // Adds rounded corners to the image
-                  }}
-                />
-                <Typography
-                  variant="h6"
-                  style={{ marginTop: "10px", fontWeight: "bold", textAlign: "center" }}
-                >
-                  {prod.products?.name || prod.name}
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  Price: {prod.products?.price || prod.price} INR
-                </Typography>
-                <Typography variant="body1" color="primary" style={{ fontWeight: "bold" }}>
-                  Total: {((prod.products?.price || prod.price) * prod.quantity).toFixed(2)} INR
-                </Typography>
+              <Grid2 container spacing={3}>
+                {cartItems.map((prod) => (
+                  <Grid2 item xs={12} sm={6} md={4} key={prod.id}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "16px",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                        transition: "transform 0.3s ease-in-out",
+                      }}
+                      className="cart-item"
+                    >
+                      <img
+                        src={prod.products?.image_url || prod.image_url}
+                        alt={prod.products?.name || prod.name}
+                        style={{
+                          width: "150px",
+                          height: "150px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Typography
+                        variant="h6"
+                        style={{ marginTop: "10px", fontWeight: "bold", textAlign: "center" }}
+                      >
+                        {prod.products?.name || prod.name}
+                      </Typography>
+                      <Typography variant="body1" color="textSecondary">
+                        Price: {prod.products?.price || prod.price} INR
+                      </Typography>
+                      <Typography variant="body1" color="primary" style={{ fontWeight: "bold" }}>
+                        Total: {((prod.products?.price || prod.price) * prod.quantity).toFixed(2)} INR
+                      </Typography>
 
-                {/* Quantity controls */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: "10px",
-                    gap: "10px",
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleDecrease(prod)}
-                    style={{ minWidth: "40px" }}
-                  >
-                    -
-                  </Button>
-                  <Typography variant="h6" style={{ margin: "0 10px" }}>
-                    {prod.quantity}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleIncrease(prod)}
-                    style={{ minWidth: "40px" }}
-                  >
-                    +
-                  </Button>
-                </div>
+                      {/* Quantity controls */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginTop: "10px",
+                          gap: "10px",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleDecrease(prod)}
+                          style={{ minWidth: "40px" }}
+                        >
+                          -
+                        </Button>
+                        <Typography variant="h6" style={{ margin: "0 10px" }}>
+                          {prod.quantity}
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleIncrease(prod)}
+                          style={{ minWidth: "40px" }}
+                        >
+                          +
+                        </Button>
+                      </div>
 
-                {/* Remove button */}
-                <div style={{ marginTop: "10px" }}>
-                  <IconButton
-                    color="secondary"
-                    onClick={() => handleRemoveFromCart(prod)}
-                    style={{
-                      border: "1px solid #f00",
-                      padding: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: "#ffeded",
-                      transition: "background-color 0.3s",
-                    }}
-                  >
-                    <RemoveShoppingCartIcon />
-                  </IconButton>
-                </div>
-              </div>
-            </Grid2>
-          ))}
-            </Grid2>
-            
-
+                      {/* Remove button */}
+                      <div style={{ marginTop: "10px" }}>
+                        <IconButton
+                          color="secondary"
+                          onClick={() => handleRemoveFromCart(prod)}
+                          style={{
+                            border: "1px solid #f00",
+                            padding: "8px",
+                            borderRadius: "50%",
+                            backgroundColor: "#ffeded",
+                            transition: "background-color 0.3s",
+                          }}
+                        >
+                          <RemoveShoppingCartIcon />
+                        </IconButton>
+                      </div>
+                    </div>
+                  </Grid2>
+                ))}
+              </Grid2>
             </div>
           )}
+
           <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
             <Button
               color="inherit"
@@ -466,14 +544,13 @@ const handleDecrease = (prod) => {
             <Button 
               onClick={handleNext}
               disabled={
-                (activeStep === 0 && cartItems.length === 0) ||
+                (activeStep === 0 &&  (cartItems.length === 0 && !isBuyNow)) ||
                 (activeStep === 1 && (shippingAddress === 0 && !isAddingAddress) || (isAddingAddress && (!newAddress.streetAddress || !selectedCity || !selectedState || !newAddress.postalCode || !newAddress.contactNumber))) ||
-                (activeStep === 2 && false)  // Replace false with your payment validation condition
+                (activeStep === 2 && false)
               }
             >
               Next
             </Button>
-
           </Box>
         </Box>
       ) : activeStep === 1 ? (
@@ -498,7 +575,6 @@ const handleDecrease = (prod) => {
                 </Select>
               </FormControl>
               <Button onClick={() => setIsAddingAddress(true)}>Add New Address</Button>
-              
             </>
           ) : (
             <>
@@ -576,7 +652,6 @@ const handleDecrease = (prod) => {
             </>
           )}
 
-
           <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
           <Button
             color="inherit"
@@ -595,9 +670,9 @@ const handleDecrease = (prod) => {
       ) : activeStep === 2 ? (
         // Payment step
         <Box sx={{ mt: 2 }}>
-      
           {/* <Button onClick={handleNext}>Finish</Button> */}
-          <PaymentComponent amountProps={GrandTotal} cgst={CGSTValue} sgst={SGSTValue} shippingAddress={shippingAddress} />
+          <PaymentComponent amountProps={GrandTotal} cgst={CGSTValue} sgst={SGSTValue} shippingAddress={shippingAddress} 
+          isBuyNow={isBuyNow} productId={buyNowProduct && buyNowProduct.product_id ? buyNowProduct.product_id : 0}/>
           <Button onClick={handleNext}>
             {activeStep === steps.length - 1 ? "" : "Next"}
           </Button>

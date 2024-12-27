@@ -1,29 +1,30 @@
 import * as React from 'react';
-
 import Typography from '@mui/material/Typography';
-import {  IconButton } from '@mui/material';
+import {  IconButton,Button } from '@mui/material';
 import { RemoveShoppingCart as RemoveShoppingCartIcon } from '@mui/icons-material';
 import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { removeFromCart } from '../netlify/removeFromCart';
 import addToCart from '../netlify/addToCart';
 import getAllProducts from '../netlify/getAllProducts';
-import List from '@mui/material/List';
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem';
-import ImageListItemBar from '@mui/material/ImageListItemBar';
-import { CartProvider, useCart } from '../CartContext';
-import ProductDetailsPage from './ProductDetailsPage';
-import { Link, useNavigate } from 'react-router-dom';
+import {  useCart } from '../CartContext';
+import { useNavigate } from 'react-router-dom';
+import addToWishlist from '../netlify/addToWishlist';
 
 import { Row, Col, Container } from "react-bootstrap"; // Bootstrap grid system
+import { useWishlist } from '../WishlistContext';
+import { removeFromWishlist } from '../netlify/removeFromWishlist';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import getAllWishListItemsByUserId from '../netlify/getAllWishListItemsByUserId';
 
 const ShowAllProducts = () => {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
   const [products, setProducts] = React.useState([]);
   const authToken = sessionStorage.getItem('authToken');
-  const { cartContextCount, cartItems, updateCart } = useCart();  // Access cart context
+  const {  cartItems, updateCart } = useCart();  // Access cart context
+  const { wishlistItems, updateWishlist} = useWishlist();
   const navigate = useNavigate();
 
   const fetchUserCart = async () => {
@@ -33,6 +34,15 @@ const ShowAllProducts = () => {
 
     } catch (error) {
       console.error("Error fetching user cart:", error);
+    }
+  };
+  const fetchUserWishlist = async () => {
+    try {
+      const fetchedUserWistlist = await getAllWishListItemsByUserId(userObj.id);
+    updateWishlist(fetchedUserWistlist.updatedWishlistItems);  // Update the cart count and items in context
+
+    } catch (error) {
+      console.error("Error fetching user wishtlist:", error);
     }
   };
 
@@ -47,6 +57,7 @@ const ShowAllProducts = () => {
     };  
     if (authToken) {
       fetchUserCart();
+      fetchUserWishlist();
       fetchProducts();
     }
   }, [authToken]);
@@ -78,13 +89,43 @@ const ShowAllProducts = () => {
     sessionStorage.setItem('cartCount', JSON.stringify(updatedCart.length));
   };
 
+  const handleAddToWishlist = async (prod) => {
+    try {
+      if (!wishlistItems.some(item => item.id === prod.id)) {
+        const wishlistItemId = await addToWishlist(userObj.id, prod.id);
+        const updatedProd = { ...prod, wishlistItemId };
+        const updatedWishlist = [...wishlistItems, updatedProd];
+        sessionStorage.setItem('Wishlist', JSON.stringify(updatedWishlist));
+        sessionStorage.setItem('WishlistCount', updatedWishlist.length);
+        updateWishlist(updatedWishlist);  // Update the cart count and items in context
+        fetchUserWishlist();
+
+      }
+    } catch (error) {
+      console.error("Error adding product to wishlist:", error);
+    }
+  };
+
+  
+  const handleRemoveFromWishlist = async (prod) => {
+    const updatedWishlist = wishlistItems.filter(item => item.id !== prod.id);
+    updateWishlist(updatedWishlist);
+    await removeFromWishlist(prod.id,false);
+    fetchUserWishlist();
+    sessionStorage.setItem('Wishlist', JSON.stringify(updatedWishlist));
+    sessionStorage.setItem('WishlistCount', JSON.stringify(updatedWishlist.length));
+  };
+  
+
   const isInCart = (prod) => {
     return cartItems.some(item => item.id === prod.id);
   };
 
+  const isInWishList = (prod) => {
+    return wishlistItems.some(item => item.id === prod.id);
+  };
 
-  
-React.useEffect(() => {           
+  React.useEffect(() => {           
     const fetchData = async () => {
         try {
         const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
@@ -94,7 +135,7 @@ React.useEffect(() => {
         }
     };
     fetchData();
-}, []);
+  }, []);
 
   
   return (
@@ -129,10 +170,28 @@ React.useEffect(() => {
                       backgroundColor: "rgba(0, 0, 0, 0.6)",
                       color: "#fff",
                     }}
+                    title='Add to cart'
                   >
                     {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
                   </IconButton>
+                  <IconButton
+                    onClick={() =>
+                      isInWishList(prod) ? handleRemoveFromWishlist(prod) : handleAddToWishlist(prod)
+                    }
+                    style={{
+                      position: "absolute",
+                      top: 50,
+                      right: 10,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      color: "#fff",
+                    }}
+
+                    title='Add to wishlist'
+                  >
+                    {isInWishList(prod) ? <FavoriteBorderIcon /> : <FavoriteIcon />}
+                  </IconButton>
                 </div>
+                
                 <div className="card-body text-center">
                   <Typography variant="h6" className="card-title" style={{fontWeight:'bold'}}>
                     {prod.name}
@@ -144,6 +203,14 @@ React.useEffect(() => {
                   >
                     Price: {prod.price} INR
                   </Typography>
+                  <Button
+                      variant="outlined"
+                      color="secondary"
+                      size="small"
+                      onClick={() => navigate(`/product/${prod.products.id}`)}
+                    >
+                      Buy Now
+                    </Button>
                 </div>
               </div>
             </Col>

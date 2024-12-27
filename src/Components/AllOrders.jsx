@@ -67,7 +67,6 @@ const AllOrders = () => {
     const fetchProducts = async () => {
       try {
         const fetchedOrders = await getAllOrdersByUserId(userObj.id);
-        console.log(JSON.stringify(fetchedOrders.orders));
         setOrders(fetchedOrders.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -188,9 +187,6 @@ const AllOrders = () => {
             <Typography>No orders available.</Typography>
           )}
         </Grid2>
-
-
-          {/* Cancel Order Dialog */}
           <Dialog
             open={isCancelDialogOpen}
             onClose={() => setIsCancelDialogOpen(false)}
@@ -321,7 +317,6 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
         try {
           const response = await updateOrderStatus(orderId,newStatus,comments);
           if (response && 'error' in response) {
-            // If the response contains an error, display the error message
             alert(response.error);
           } else {
             // Handle unexpected cases (e.g., response doesn't have data or error)

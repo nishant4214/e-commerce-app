@@ -26,7 +26,7 @@ export const updateOrderStatus = async (orderId, StatusCode, comments) => {
     1: [2, 9],        // Pending -> Confirmed, Cancelled
     2: [4, 9],        // Confirmed -> Dispatched, Cancelled
     4: [5, 8],        // Dispatched -> Delivered, Returned
-    5: [8],            // Delivered -> Returned
+    5: [8],           // Delivered -> Returned
     6: [],            // Failed -> No further updates allowed
     7: [],            // Rejected -> No further updates allowed
     8: [],            // Returned -> No further updates allowed

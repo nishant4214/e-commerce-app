@@ -10,10 +10,9 @@ const generateUniqueOrderNumber = () => {
     return `ORD-${timestamp}-${randomString}`; // Combine to form unique order number
 };
 
-const createOrder = async (customerId, cgst, sgst, GrandTotal, AddressId, transactionId) => {
+const createOrder = async (customerId, cgst, sgst, GrandTotal, AddressId, transactionId, isBuyNow, productId) => {
     const uniqueOrderNumber = generateUniqueOrderNumber();
-
-    const { data, error } = await supabase.rpc('create_order_transaction', {
+    const { data, error } = await supabase.rpc('place_order_new', {
         customer_id: Number(customerId),
         address_id: Number(AddressId),
         total_amount: GrandTotal,
@@ -21,14 +20,14 @@ const createOrder = async (customerId, cgst, sgst, GrandTotal, AddressId, transa
         sgst,
         transaction_id: transactionId,
         order_number: uniqueOrderNumber,
+        buynow: isBuyNow,
+        product_id_ref : Number(productId)
     });
 
     if (error) {
         console.error('Error creating order transaction:', error);
         return null;
     }
-
-    // Return the unique order number and new order ID
     return { uniqueOrderNumber };
 };
 

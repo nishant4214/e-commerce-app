@@ -13,11 +13,15 @@ import CategoryIcon from '@mui/icons-material/Category';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CartStepper from './CartStepper';
 import ShowAllProducts from './ShowAllProducts';
+import Wishlist from './Wishlist';
 import { CartProvider, useCart } from '../CartContext';
+import { WishlistProvider, useWishlist } from '../WishlistContext';
 import {AllOrders, ViewOrder} from './AllOrders';
-import OrdersSummary from './OrdersSummary';
+//import OrdersSummary from './OrdersSummary';
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 
 
 const demoTheme = extendTheme({
@@ -52,6 +56,7 @@ export default function CustomerDashboard(props) {
   const user = sessionStorage.getItem('user');
   const userObj = JSON.parse(user); 
   const { cartContextCount, updateCart } = useCart();  // Use cart context
+  const { wishlistContextCount, updateWishlist } = useWishlist();  
 
   const { window } = props;
   const [auth, setAuth] = useState(true);
@@ -99,6 +104,17 @@ const NAVIGATION = [
       icon: <ShoppingBasketIcon />,
     },
     {
+      segment: 'Wishlist',
+      title: 'Wishlist',
+      icon: <div>
+        {wishlistContextCount > 0 ?
+          <Badge  badgeContent=  { `${wishlistContextCount}`} color="primary">
+            <FavoriteIcon />
+              </Badge>:
+            <FavoriteIcon />}
+        </div>,
+    },
+    {
       segment: 'Logout',
       title: 'Logout',
       icon: <LogoutIcon />,
@@ -131,9 +147,7 @@ const NAVIGATION = [
     >
       <DashboardLayout>
         {auth && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignContent:'right' }}>
-            {/* User info menu */}
-            
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignContent:'right' }}>           
           </div>
         )}
 
@@ -144,12 +158,12 @@ const NAVIGATION = [
                 <h1>🌟 Hello, {userObj.username}! 🌟</h1>
                 <p>Your shopping adventure awaits! 🚀</p>
               </div>
-              <div className="dashboard-header">
+              {/* <div className="dashboard-header">
               <Box sx={{ width: '40%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} >
                   <OrdersSummary userId={userObj.id} />
                   <h5>Orders</h5>
                 </Box>
-              </div>
+              </div> */}
             </div>
           )}
           {router.pathname === '/Products' && (
@@ -160,6 +174,9 @@ const NAVIGATION = [
           )}
           {router.pathname === '/Orders' && (
            <AllOrders />
+          )}
+          {router.pathname === '/Wishlist' && (
+           <Wishlist />
           )}
         </PageContainer>
       </DashboardLayout>
