@@ -8,6 +8,7 @@ import { removeFromCart } from '../netlify/removeFromCart';
 import addToCart from '../netlify/addToCart';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
 import { updateCartItemCount } from '../netlify/updateCartItemCount';
+import {Grid2, Rating} from "@mui/material";
 
 const ProductDetailsPage = () => {
   const { id } = useParams(); // Get product ID from URL params
@@ -61,6 +62,7 @@ const ProductDetailsPage = () => {
     const fetchProduct = async () => {
       try {
         const data = await getProductDetailsById(id); // Fetch product data based on ID
+        console.log(data)
         setProduct({ ...data.product, quantity: data.product.quantity || 1 }); // Ensure quantity is at least 1
         setLoading(false);
       } catch (error) {
@@ -177,7 +179,7 @@ const ProductDetailsPage = () => {
             </Button>
 
           </div>
-
+          
           {/* Additional Info */}
           <Typography variant="subtitle1" className="text-muted">
             Category: {product.category || "General"}
@@ -187,7 +189,29 @@ const ProductDetailsPage = () => {
           </Typography>
         </Col>
       </Row>
-
+             {/* Reviews */}
+          <Typography variant="h5" className="mt-5">
+            Customer Reviews
+          </Typography>
+          <Grid2 container spacing={2}>
+            {product.reviews && product.reviews.length > 0 ? (
+              product.reviews.map((review) => (
+                <Grid2 item xs={12} sm={6} md={4} key={review.id}>
+                  <Card className="shadow-sm p-3 mb-5 bg-white rounded">
+                    <Card.Body>
+                      <Rating value={review.rating} readOnly />
+                      <Card.Text>{review.comment}</Card.Text>
+                      <Card.Subtitle className="text-muted">
+                        - {review.username || "Anonymous"}
+                      </Card.Subtitle>
+                    </Card.Body>
+                  </Card>
+                </Grid2>
+              ))
+            ) : (
+              <Typography>No reviews yet. Be the first to review!</Typography>
+            )}
+          </Grid2>   
       {/* Additional Images or Recommendations */}
       <Row className="mt-5">
         <Col>

@@ -3,7 +3,6 @@ import { TextField, Button, Box, Typography, List, ListItem, ListItemText, Image
 import getAllProducts from '../netlify/getAllProducts';
 import addProduct from '../netlify/addProduct';
 import updateProduct from '../netlify/updateProduct';
-import AuthContext from '../AuthContext';
 import EditIcon from "@mui/icons-material/Edit";
 
 const AddProductForm = () => {

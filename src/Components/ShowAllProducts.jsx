@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
-import {  IconButton,Button } from '@mui/material';
+import {  IconButton,Button, Rating } from '@mui/material';
 import { RemoveShoppingCart as RemoveShoppingCartIcon } from '@mui/icons-material';
 import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import getAllCartItemsByUserId from '../netlify/getAllCartItemsByUserId';
@@ -51,6 +51,7 @@ const ShowAllProducts = () => {
     const fetchProducts = async () => {
       try {
         const fetchedProducts = await getAllProducts();
+        console.log(fetchedProducts.products);
         setProducts(fetchedProducts.products); // Assuming fetchedProducts is { products: [...] }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -63,6 +64,12 @@ const ShowAllProducts = () => {
     }
   }, [authToken]);
   
+
+  const calculateAverageRating = (reviews) => {
+    if (!reviews || reviews.length === 0) return 0;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return totalRating / reviews.length;
+  };
 
   const handleAddToCart = async (prod) => {
     try {
@@ -216,6 +223,15 @@ const ShowAllProducts = () => {
                     >
                       Price: {prod.price} INR
                     </Typography>
+                    <Rating
+                        name={`product-rating-${prod.id}`}
+                        value={calculateAverageRating(prod.reviews)} // Calculate the average rating
+                        precision={0.5}
+                        readOnly
+                      />
+                      <Typography variant="caption" color="textSecondary">
+                        ({prod.reviews?.length || 0} reviews)
+                      </Typography>
                     <Button
                         variant="outlined"
                         color="secondary"

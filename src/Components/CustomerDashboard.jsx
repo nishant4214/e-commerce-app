@@ -23,7 +23,9 @@ import Badge from '@mui/material/Badge';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ProfilePage from './Profile';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-
+import getAllOrdersByUserId from "../netlify/getAllOrdersByUserId";
+import OrderFeedback from './Rating';
+import { Typography } from "@mui/material";
 
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
@@ -58,7 +60,8 @@ export default function CustomerDashboard(props) {
   const userObj = JSON.parse(user); 
   const { cartContextCount, updateCart } = useCart();  // Use cart context
   const { wishlistContextCount, updateWishlist } = useWishlist();  
-
+  const [orders, setOrders] = useState([]);
+  const [isReviewProducts, setIsReviewProducts]= useState(false);
   const { window } = props;
   const [auth, setAuth] = useState(true);
   const authToken = sessionStorage.getItem('authToken');
@@ -141,8 +144,32 @@ const NAVIGATION = [
   useEffect(() => {
     if (router.pathname === '/Logout') {
       handleAuth();
+      
     }
   }, [router.pathname]);
+
+  const fetchProducts = async () => {
+    try {
+      const fetchedOrders = await getAllOrdersByUserId(userObj.id);
+    // Filter orders by status code = 5
+    const filteredOrders = fetchedOrders.orders.filter(
+      (order) => order.order_status_codes && order.order_status_codes.status_code === 5
+    );
+    setOrders(filteredOrders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+  useEffect(() => {
+    if (authToken) {
+      fetchProducts();
+    }
+  }, [authToken]);
+
+  const handleFeedbackSubmit = (feedbackData) => {
+    fetchProducts();
+  };
+  
   
   return (
     <AppProvider
@@ -158,20 +185,50 @@ const NAVIGATION = [
         )}
 
         <PageContainer>
-          {router.pathname === '/customer-dashboard' && (
+        {router.pathname === '/customer-dashboard' && (
             <div className="dashboard">
               <div style={{ textAlign: "center", margin: "20px" }}>
                 <h1>🌟 Hello, {userObj.username}! 🌟</h1>
                 <p>Your shopping adventure awaits! 🚀</p>
               </div>
-              {/* <div className="dashboard-header">
-              <Box sx={{ width: '40%', padding: 2, border: '1px solid #ccc', borderRadius: 2 }} >
-                  <OrdersSummary userId={userObj.id} />
-                  <h5>Orders</h5>
-                </Box>
-              </div> */}
+              {isReviewProducts ? (
+                <div className="dashboard-header">
+                  <Typography variant="h6" gutterBottom>
+                    Rate Your Purchase
+                  </Typography>
+                </div>
+              ) : (
+                <div></div>
+              )}
+
+            <div className="dashboard-header">
+              {Array.isArray(orders) && orders.length > 0 ? (
+                orders.map((order) => (
+                  Array.isArray(order.order_items) && order.order_items.length > 0 ? (
+                    order.order_items
+                      .filter((product) => product.is_reviewed === false) // Filter items where is_reviewed is false
+                      .map((product) => (
+                        <div key={product.product_id} style={{ marginBottom: "20px" }}>
+                          {setIsReviewProducts(true)}
+                          <OrderFeedback 
+                            orderId={order.order_id}
+                            userId={userObj.id} 
+                            productData={product.products} 
+                            onSubmitFeedback={(feedbackData) => handleFeedbackSubmit(feedbackData)}
+                          />
+                        </div>
+                      ))
+                  ) : (
+                    <div key={order.order_id}>No items in this order.</div>
+                  )
+                ))
+              ) : (
+                <div>No orders to display. Start shopping now! 🛒</div>
+              )}
+              </div>
             </div>
           )}
+
           {router.pathname === '/Profile' && (
             <ProfilePage/>
           )}
