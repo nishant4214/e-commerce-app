@@ -163,7 +163,9 @@ const ShowAllProducts = () => {
         {Array.isArray(products) && products.length > 0 ? (
           <Row className="g-3">
             {products.map((prod) => (
-              <Col xs={12} sm={6} md={4} lg={3} key={prod.id}>
+              <Col xs={12} sm={6} md={4} lg={3} key={prod.id}
+                      style={{ display: "flex", justifyContent: "center" }}
+                      >
                 <div className="card shadow-sm border-0 rounded">
                   <div className="image-container">
                     <img

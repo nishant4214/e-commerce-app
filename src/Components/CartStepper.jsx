@@ -369,6 +369,9 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                       padding: "16px",
                       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                       transition: "transform 0.3s ease-in-out",
+                      height: "400px", // Fixed height for consistent card sizes
+                      width: "300px",
+                      
                     }}
                     className="buy-now-item"
                   >
@@ -380,6 +383,7 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                         height: "150px",
                         objectFit: "cover",
                         borderRadius: "8px",
+                        
                       }}
                     />
                     <Typography
@@ -444,6 +448,8 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                         padding: "16px",
                         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                         transition: "transform 0.3s ease-in-out",
+                        height: "400px", // Fixed height for consistent card sizes
+                        width: "300px",
                       }}
                       className="cart-item"
                     >

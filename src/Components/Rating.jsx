@@ -36,9 +36,12 @@ const OrderFeedback = ({ orderId,  userId, productData, onSubmitFeedback }) => {
         border: "1px solid #ddd",
         borderRadius: "8px",
         padding: "20px",
-        maxWidth: "500px",
+        width: "300px",
+        height:"500px",
         margin: "20px auto",
+        
       }}
+      
     >
       <img
         src={productData.image_url || "/path/to/default-image.jpg"}

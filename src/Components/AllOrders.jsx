@@ -135,7 +135,17 @@ const AllOrders = () => {
           {Array.isArray(orders) && orders.length > 0 ? (
             orders.map((order) => (
               <Grid2 item xs={12} sm={6} md={4} key={order.order_id}>
-                <Card sx={{ cursor: "pointer" }}>
+                <Card
+                  sx={{
+                    cursor: "pointer",
+                    height: "300px", // Fixed height for consistent card sizes
+                    width: "300px",
+
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
                   <CardContent onClick={() => handleViewOrder(order.order_id)}>
                     <Typography variant="h6" fontWeight="bold" color="primary">
                       {order.order_number}
@@ -152,7 +162,15 @@ const AllOrders = () => {
                       color="primary"
                       sx={{ marginTop: 2 }}
                     />
-                    <Box sx={{ marginTop: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    <Box
+                      sx={{
+                        marginTop: 2,
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 1,
+                        justifyContent: "center", // Center-align the images
+                      }}
+                    >
                       {order.order_items.map((item, index) => (
                         <img
                           key={index}
@@ -186,6 +204,7 @@ const AllOrders = () => {
             <Typography>No orders available.</Typography>
           )}
         </Grid2>
+
           <Dialog
             open={isCancelDialogOpen}
             onClose={() => setIsCancelDialogOpen(false)}
