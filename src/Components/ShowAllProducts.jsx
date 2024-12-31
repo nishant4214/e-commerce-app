@@ -230,8 +230,10 @@ const ShowAllProducts = () => {
                         readOnly
                       />
                       <Typography variant="caption" color="textSecondary">
-                        ({prod.reviews?.length || 0} reviews)
+                        ({prod.reviews?.length || 0})
                       </Typography>
+                      <br/>
+
                     <Button
                         variant="outlined"
                         color="secondary"

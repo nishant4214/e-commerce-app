@@ -26,6 +26,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import getAllOrdersByUserId from "../netlify/getAllOrdersByUserId";
 import OrderFeedback from './Rating';
 import { Typography } from "@mui/material";
+import { Row, Col, Container } from "react-bootstrap"; // Bootstrap grid system
 
 const demoTheme = extendTheme({
   colorSchemes: { light: true, dark: true },
@@ -148,6 +149,17 @@ const NAVIGATION = [
     }
   }, [router.pathname]);
 
+  useEffect(() => {
+    if (Array.isArray(orders)) {
+      console.log(orders);
+      const hasPendingReviews = orders.some((order) =>
+        order.order_items.some((product) => product.is_reviewed === false)
+      );
+      setIsReviewProducts(hasPendingReviews);
+    }
+  }, [orders]);
+  
+
   const fetchProducts = async () => {
     try {
       const fetchedOrders = await getAllOrdersByUserId(userObj.id);
@@ -202,29 +214,37 @@ const NAVIGATION = [
               )}
 
             <div className="dashboard-header">
-              {Array.isArray(orders) && orders.length > 0 ? (
-                orders.map((order) => (
-                  Array.isArray(order.order_items) && order.order_items.length > 0 ? (
-                    order.order_items
-                      .filter((product) => product.is_reviewed === false) // Filter items where is_reviewed is false
-                      .map((product) => (
-                        <div key={product.product_id} style={{ marginBottom: "20px" }}>
-                          {setIsReviewProducts(true)}
-                          <OrderFeedback 
+            <Row className="g-3">
+            {Array.isArray(orders) && orders.length > 0 ? (
+              orders.map((order) =>
+                Array.isArray(order.order_items) && order.order_items.length > 0 ? (
+                  order.order_items
+                    .filter((product) => product.is_reviewed === false) // Filter items where is_reviewed is false
+                    .map((product) => (
+                      <Col xs={12} sm={6} md={4} lg={3} key={product.product_id}>
+                        <div className="card shadow-sm border-0 rounded">
+                          <OrderFeedback
                             orderId={order.order_id}
-                            userId={userObj.id} 
-                            productData={product.products} 
+                            userId={userObj.id}
+                            productData={product.products}
                             onSubmitFeedback={(feedbackData) => handleFeedbackSubmit(feedbackData)}
                           />
                         </div>
-                      ))
-                  ) : (
-                    <div key={order.order_id}>No items in this order.</div>
-                  )
-                ))
-              ) : (
+                      </Col>
+                    ))
+                ) : (
+                  <Col xs={12} key={order.order_id}>
+                    <div>No items in this order.</div>
+                  </Col>
+                )
+              )
+            ) : (
+              <Col xs={12}>
                 <div>No orders to display. Start shopping now! 🛒</div>
-              )}
+              </Col>
+            )}
+          </Row>
+
               </div>
             </div>
           )}
