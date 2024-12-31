@@ -21,10 +21,6 @@ const ProfilePage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-//   const handleSave = () => {
-//     setUser({ ...formData });
-//     setIsEditing(false);
-//   };
 
   return (
     <div className="profile-page">
@@ -63,15 +59,6 @@ const ProfilePage = () => {
                 onChange={handleChange}
               />
             </label>
-            {/* <label>
-              Bio:
-              <textarea
-                name="bio"
-                value={userObj.address}
-                onChange={handleChange}
-              />
-            </label> */}
-            {/* <button onClick={handleSave}>Save</button> */}
             <button onClick={handleEditToggle}>Cancel</button>
           </div>
         ) : (
@@ -79,8 +66,6 @@ const ProfilePage = () => {
             <h2>{userObj.username}</h2>
             <p>Email: {userObj.email}</p>
             <p>Phone: {userObj.mobile_no}</p>
-            {/* <p>Address: {userObj.address}</p> */}
-            {/* <button onClick={handleEditToggle}>Edit Profile</button> */}
           </div>
         )}
       </div>

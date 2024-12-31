@@ -51,7 +51,6 @@ const ShowAllProducts = () => {
     const fetchProducts = async () => {
       try {
         const fetchedProducts = await getAllProducts();
-        console.log(fetchedProducts.products);
         setProducts(fetchedProducts.products); // Assuming fetchedProducts is { products: [...] }
       } catch (error) {
         console.error("Error fetching products:", error);

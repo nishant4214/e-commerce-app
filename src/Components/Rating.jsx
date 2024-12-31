@@ -40,18 +40,17 @@ const OrderFeedback = ({ orderId,  userId, productData, onSubmitFeedback }) => {
         margin: "20px auto",
       }}
     >
-
       <img
-            src={productData.image_url || "/path/to/default-image.jpg"}
-            alt={productData.name}
-            className="card-img-top img-fluid"
-            style={{
-            objectFit: "cover",
-            maxHeight: "200px",
-            borderTopLeftRadius: "8px",
-            borderTopRightRadius: "8px",
-            }}
-        />
+        src={productData.image_url || "/path/to/default-image.jpg"}
+        alt={productData.name}
+        className="card-img-top img-fluid"
+        style={{
+        objectFit: "cover",
+        maxHeight: "200px",
+        borderTopLeftRadius: "8px",
+        borderTopRightRadius: "8px",
+        }}
+      />
       <Typography variant="h6">
         {productData.name}
       </Typography>
