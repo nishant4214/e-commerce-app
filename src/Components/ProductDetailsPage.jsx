@@ -127,11 +127,18 @@ const ProductDetailsPage = () => {
           <Typography variant="h3" gutterBottom>
             {product.name}
           </Typography>
+          <Typography variant="h6" className="card-title">
+           Category: {product.categories.category_name}
+          </Typography>
+          <br/>
           <Typography variant="h5" style={{ color: "#007bff", fontWeight: "bold" }}>
-            Price: ₹{product.price}
+            Price: {product.price} ₹
           </Typography>
           <Typography variant="body1" className="my-3">
-            {product.description}
+            Description: {product.description}
+          </Typography>
+          <Typography variant="h6" className="card-title" style={{ fontWeight: "bold" }}>
+            {product.categories.is_prescription_required ? "(Prescription Required)" : ""}
           </Typography>
 
           {/* Quantity Selector and Add to Cart */}
@@ -213,12 +220,12 @@ const ProductDetailsPage = () => {
             )}
           </Grid2>   
       {/* Additional Images or Recommendations */}
-      <Row className="mt-5">
+      {/* <Row className="mt-5">
         <Col>
           <h4>Related Products</h4>
           <p>Coming Soon...</p>
         </Col>
-      </Row>
+      </Row> */}
     </Container>
   ) : (
     <div className="text-center mt-5">Product not found</div>

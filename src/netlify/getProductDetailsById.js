@@ -12,7 +12,7 @@ const getProductDetailsById = async (productId) => {
 
         const { data: product, error } = await supabase
         .from('products')
-        .select(`*, reviews(*)`)
+        .select(`*, reviews(*), categories(*)`)
         .eq('id', productId)
         .single(); // Ensure only one order is returned
       if (error) {

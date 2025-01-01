@@ -7,7 +7,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const getAllProducts = async () => {
-    const { data:products, error } = await supabase.from('products').select('*, reviews(*)');
+    const { data:products, error } = await supabase.from('products').select('*, reviews(*), categories(*)').eq('isactive',true);
     
     if (error) {
         console.error('Error fetching products:', error.message);

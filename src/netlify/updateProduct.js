@@ -14,6 +14,7 @@ const updateProduct = async (product) => {
             description: product.description,
             price: product.price,
             image_url: product.image_url,
+            category_id: product.category_id
         })
         .eq('id', product.id);
 
