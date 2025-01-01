@@ -28,7 +28,6 @@ const AddProductForm = () => {
       const fetchedProducts = await getAllProducts();
       setProducts(fetchedProducts.products);
       const fetchedCategories = await getAllCategories();
-      console.log(fetchedCategories.categories);
       setCategories(fetchedCategories.categories)
     };
 

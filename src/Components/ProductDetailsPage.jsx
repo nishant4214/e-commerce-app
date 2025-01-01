@@ -191,9 +191,6 @@ const ProductDetailsPage = () => {
           <Typography variant="subtitle1" className="text-muted">
             Category: {product.category || "General"}
           </Typography>
-          <Typography variant="subtitle1" className="text-muted">
-            SKU: {product.sku || "N/A"}
-          </Typography>
         </Col>
       </Row>
              {/* Reviews */}
