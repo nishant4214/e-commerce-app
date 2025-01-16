@@ -18,10 +18,12 @@ import getAllStates from '../netlify/getAllStates';
 import getAllCityByStateId from '../netlify/getAllCityByStateId';
 import PaymentComponent from './paymentGateway';
 import { updateWishlistItemCount } from '../netlify/updateWishlistItemCount';
+import { Form } from 'react-router-dom';
 
 const steps = ['Review Cart', 'Shipping Details', 'Payment'];
 
 const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [cartTotal, setCartTotal] = React.useState(0);
   const [CGSTValue, setCGSTValue] = React.useState(0);
@@ -34,6 +36,9 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   const [selectedCity, setSelectedCity] = React.useState(0);
   const [addressList, setAddressList] = React.useState([]);
   const [itemQuantity, setItemQuantity] = React.useState(1);
+  const [isPrescriptionRequired, setIsPrescriptionRequired] = React.useState(false);
+  const [Prescription, setPrescription] = React.useState(null);
+  const [file_id, setFileId] = React.useState(null);
   const [newAddress, setNewAddress] = React.useState({
     streetAddress: '',
     cityId: 0,
@@ -202,7 +207,7 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
     let total = 0;
     cartItems.forEach(item => {
       const itemPrice = item.products?.price || item.price;
-      total += itemPrice * item.quantity;
+      total += itemPrice * item.quantity || 1;
     });
   
     // Calculate taxes
@@ -230,12 +235,10 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   };
 
   const handleIncrease = async (prod) => {
+
     if (isBuyNow) {
       const updateQuantity = itemQuantity + 1;
-      const updatedBuyNowProduct = { ...buyNowProduct, quantity: updateQuantity, updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)   };
-      //updateWishlist(updatedBuyNowProduct);
-      
-
+      const updatedBuyNowProduct = { ...buyNowProduct, quantity: updateQuantity, updatedItem: await updateWishlistItemCount(!buyNowProduct.wishlist_id?buyNowProduct.wishlistItemId:buyNowProduct.wishlist_id , updateQuantity)   };
       setItemQuantity(itemQuantity+1)
       calculateTotal([{ ...buyNowProduct, quantity: updateQuantity }]); 
     } else {
@@ -253,7 +256,6 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
       {
         const updateQuantity = itemQuantity - 1;
         const updatedBuyNowProduct = { ...buyNowProduct, quantity: updateQuantity, updatedItem: await updateWishlistItemCount(buyNowProduct.wishlist_id, updateQuantity)  };
-        //updateWishlist(updatedBuyNowProduct);
         setItemQuantity(itemQuantity-1)
         calculateTotal([{ ...buyNowProduct, quantity: updateQuantity }]); 
       }
@@ -275,7 +277,6 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   const handleRemoveFromCart = async (prod) => {
     const updatedCart = cartItems.filter(item => item.id !== prod.id);
     updateCart(updatedCart); 
-
     await removeFromCart(prod.id,false);
     fetchData();
     sessionStorage.setItem('product', JSON.stringify(updatedCart));
@@ -284,11 +285,30 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
   
   
   React.useEffect(() => {
-    if (isBuyNow && buyNowProduct) {
+    console.log(buyNowProduct)
 
+    if (isBuyNow && buyNowProduct) 
+    {
+      const isPrescriptionProduct = 
+      buyNowProduct?.categories?.is_prescription_required === true || 
+      buyNowProduct?.products?.categories?.is_prescription_required === true;
       calculateTotal([{ ...buyNowProduct, quantity: 1 }]);
-    } else {
+      console.log(isPrescriptionProduct)
+
+      if(isPrescriptionProduct)
+      {
+        setIsPrescriptionRequired(true);
+      }
+    } 
+    else 
+    {
       calculateTotal(cartItems);
+      const isPrescriptionProduct = cartItems.some(item => item.products.categories.is_prescription_required === true);
+      console.log(isPrescriptionProduct)
+      if(isPrescriptionProduct)
+      {
+        setIsPrescriptionRequired(true);
+      }
     }
     fetchAddresses();   
   }, [isBuyNow, buyNowProduct, cartItems]);
@@ -298,40 +318,113 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
       fetchStates();
     }
   }, [isAddingAddress]);
+
+  const handleFileChange = (event) => {
+    setPrescription(event.target.files[0]); // Assuming Prescription is a state variable
+  };
+  const uploadImage = async () => {
+    try {
+      if (!Prescription) {
+        console.error("No file selected.");
+        return;
+      }
+      
+  
+      // Create FormData and append the file
+      const formData = new FormData();
+      formData.append("file", Prescription);
+  
+      const response = await fetch('https://minio-file-ops.onrender.com/upload', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error uploading file:', errorData);
+        alert(`Failed to upload file: ${errorData.detail}`);
+        return;
+      }
+  
+      const data = await response.json();
+      console.log("File uploaded successfully:", data);
+      setFileId(data.file_id)
+      alert(data.file_id)
+
+      alert(file_id)
+      alert("File uploaded successfully!");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while uploading the file.");
+    }
+  };
   
 
   return (
-    <Box sx={{ width: '100%' }}>
+  <Box sx={{ width: '100%' }}>
     {(cartItems.length > 0 || isBuyNow) && (
-  <Grid2>
-    <Typography variant="h6">
-      {isBuyNow ? 'Product for Buy Now' : 'Your Cart'}
-    </Typography>
-    <div style={{
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'flex-start', 
-      padding: '16px', 
-      backgroundColor: 'white', 
-      borderRadius: '8px', 
-      width: '100%', 
-      marginTop: '20px',
-    }}>
-      <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-        Total: <span style={{ fontSize: '18px', color: '#333' }}>{cartTotal} INR</span>
-      </Typography>
-      <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-        CGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{CGSTValue} INR</span>
-      </Typography>
-      <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-        SGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{SGSTValue} INR</span>
-      </Typography>
-      <Typography variant="h5" style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '16px', color: '#e91e63' }}>
-        Grand Total: <span style={{ fontSize: '30px', color: '#e91e63' }}>{GrandTotal} INR</span>
-      </Typography>
-    </div>
-  </Grid2>
-)}
+      <Grid2>
+        <Typography variant="h6">
+          {isBuyNow ? 'Product for Buy Now' : 'Your Cart'}
+        </Typography>
+        <div className="row">
+          <div style={{
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-start', 
+            padding: '16px', 
+            backgroundColor: 'white', 
+            borderRadius: '8px', 
+            width: '100%', 
+            marginTop: '20px',
+          }} className='col'>
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+              Total: <span style={{ fontSize: '18px', color: '#333' }}>{cartTotal} INR</span>
+            </Typography>
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+              CGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{CGSTValue} INR</span>
+            </Typography>
+            <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+              SGST: <span style={{ fontSize: '16px', color: '#00796b' }}>{SGSTValue} INR</span>
+            </Typography>
+            <Typography variant="h5" style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '16px', color: '#e91e63' }}>
+              Grand Total: <span style={{ fontSize: '30px', color: '#e91e63' }}>{GrandTotal} INR</span>
+            </Typography>
+          </div>
+          {isPrescriptionRequired===true ?(
+          <div style={{
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-start', 
+            padding: '16px', 
+            backgroundColor: 'white', 
+            borderRadius: '8px', 
+            width: '100%', 
+            marginTop: '20px',
+          }} className='col'>
+          <Typography variant="body1" style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+            Upload Prescription
+          </Typography>
+          <input
+            type="file"
+            className="file-input"
+            id="fileInput"
+            accept=".jpg,.jpeg,.png,.pdf"
+            onChange={(e) => handleFileChange(e)}
+          />
+
+          <Button
+            variant="contained"
+            component="label"
+            onClick={()=> uploadImage()}
+          >
+            Upload File           
+          </Button>
+          </div>
+          ):null}
+        </div>
+      </Grid2>
+    )}
     <br/>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
@@ -371,7 +464,6 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                       transition: "transform 0.3s ease-in-out",
                       height: "400px", // Fixed height for consistent card sizes
                       width: "300px",
-                      
                     }}
                     className="buy-now-item"
                   >
@@ -396,7 +488,7 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
                       Price: {buyNowProduct.products?.price || buyNowProduct.price} INR
                     </Typography>
                     <Typography variant="body1" color="primary" style={{ fontWeight: "bold" }}>
-                      Total: {(buyNowProduct.products?.price || buyNowProduct.price * buyNowProduct.quantity).toFixed(2)} INR
+                      Total: {cartTotal} INR
                     </Typography>
                     <div
                       style={{
@@ -669,8 +761,8 @@ const CartStepper = ({ isBuyNow = false, buyNowProduct = null }) => {
         // Payment step
         <Box sx={{ mt: 2 }}>
           {/* <Button onClick={handleNext}>Finish</Button> */}
-          <PaymentComponent amountProps={GrandTotal} cgst={CGSTValue} sgst={SGSTValue} shippingAddress={shippingAddress} 
-          isBuyNow={isBuyNow} productId={buyNowProduct && buyNowProduct.product_id ? buyNowProduct.product_id : 0}/>
+          <PaymentComponent amountProps={GrandTotal} cgst={CGSTValue} sgst={SGSTValue} shippingAddress={shippingAddress} file_id={file_id}
+          isBuyNow={isBuyNow} productId={buyNowProduct && buyNowProduct.product_id ? buyNowProduct.product_id : buyNowProduct.id}/>
           <Button onClick={handleNext}>
             {activeStep === steps.length - 1 ? "" : "Next"}
           </Button>

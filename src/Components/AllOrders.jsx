@@ -25,6 +25,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Link
 
 } from "@mui/material";
 
@@ -320,8 +321,9 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
       order_items,
       status_code,
       order_status_history,
+      gcp_file_id
     } = orderDetails;
-  
+    
     const activeStatusIndex = statusCodes.findIndex(
       (status) => status.status_code === status_code
     );
@@ -349,7 +351,46 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
         alert("Please select a status.");
       }
     };
+
+    const handleDownload = async (event) => {
+      event.preventDefault(); // Prevent navigation
   
+      try {
+        const response = await fetch(`https://minio-file-ops.onrender.com/download/${gcp_file_id}`, {
+          method: "GET",
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to download the file.");
+        }
+  
+        // Extract filename from Content-Disposition header
+        const contentDisposition = response.headers.get("Content-Disposition");
+        const filename = contentDisposition
+          ? contentDisposition
+              .split("filename=")[1]
+              .replace(/["']/g, "") // Remove quotes if present
+          : `Prescription_${order_number}`;
+  
+        // Convert response to blob
+        const blob = await response.blob();
+  
+        // Create an object URL and initiate the download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename; // Use the extracted filename or fallback
+        document.body.appendChild(a);
+        a.click();
+  
+        // Clean up
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error during download:", error);
+        alert("Failed to download the prescription. Please try again.");
+      }
+    };
     return (
       <Box p={4}>
         {/* Back Button */}
@@ -461,6 +502,16 @@ const ViewOrder = ({ orderId, onBack, isEditable }) => {
                     />
                     </ListItem>
                 </List>
+                </Grid2>
+                <Grid2 item xs={12} md={4}>
+                  <List>
+                  <Divider />
+                  {gcp_file_id && gcp_file_id.trim() !== "" && gcp_file_id.trim() !== 'NULL' ? (
+                    <Link to="#" onClick={handleDownload}>
+                      Download Prescription
+                    </Link>
+                  ) : null}
+                  </List>
                 </Grid2>
             </Grid2>
         </Paper>

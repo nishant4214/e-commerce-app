@@ -15,7 +15,7 @@ const addToWishlist = async (user_id , product_id) => {
         console.error('Error inserting wishlist:', error);
         return null;
     }
-    return data[0].id;
+    return data[0].wishlist_id;
 };
 
 

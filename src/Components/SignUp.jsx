@@ -105,7 +105,6 @@ function SignUp(props) {
         onSubmit={handleSubmit}
         autoComplete="off"
       >
-        
         <Typography variant="h4" sx={{ color: '#891214', marginBottom: 2 }}>
             Sign Up to E-Commerce
         </Typography>

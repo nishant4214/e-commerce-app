@@ -43,3 +43,30 @@
 .css-ijwub5-MuiTypography-root{
   display: none !important;
 }
+
+.file-input {
+  display: block;
+  margin: 20px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+}
+
+.file-input:focus {
+  outline: 2px solid #007BFF;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.success-message {
+  color: green;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}

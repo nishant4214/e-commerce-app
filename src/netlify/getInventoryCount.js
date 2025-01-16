@@ -19,11 +19,7 @@ const getInventoryCount = async () => {
       console.error('Error fetching inventory count:', error.message);
       return 0;
     }
-  
-    // Calculate the total quantity by summing the 'quantity' field in each row
     const totalQuantity = data.reduce((acc, row) => acc + row.quantity, 0);
-  
-    // Return both the total quantity and the exact row count
     return  totalQuantity;
     
   };

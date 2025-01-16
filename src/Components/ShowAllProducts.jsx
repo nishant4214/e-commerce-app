@@ -17,6 +17,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import getAllWishListItemsByUserId from '../netlify/getAllWishListItemsByUserId';
 import CartStepper from './CartStepper';
+import {FormLabel, CircularProgress} from '@mui/material';
 const ShowAllProducts = () => {
   const user = sessionStorage.getItem("user");
   const userObj = JSON.parse(user);
@@ -24,17 +25,29 @@ const ShowAllProducts = () => {
   const [filteredProducts, setFilteredProducts] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const authToken = sessionStorage.getItem("authToken");
+  const [loading, setLoading] = React.useState(false);
+  const {  cartItems, updateCart } = useCart();  // Access cart context
+  const { wishlistItems, updateWishlist} = useWishlist();
+  const[isBuyNow, setBuyNow] = React.useState(false);
+  const[buyNowProduct, setBuyNowProduct] = React.useState(null);
   const navigate = useNavigate();
+
+  
 
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         const fetchedProducts = await getAllProducts();
-        console.log(fetchedProducts.products)
         setProducts(fetchedProducts.products); // Store all products
         setFilteredProducts(fetchedProducts.products); // Set the same list for filtered view initially
+
       } catch (error) {
         console.error("Error fetching products:", error);
+        setLoading(false);
+
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -60,8 +73,100 @@ const ShowAllProducts = () => {
     return totalRating / reviews.length;
   };
 
+  if (loading) {
+    return <CircularProgress />;
+  }
+  
+  const fetchUserCart = async () => {
+    try {
+      const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
+    updateCart(fetchedUserCart.updatedCartItems);  // Update the cart count and items in context
+
+    } catch (error) {
+      console.error("Error fetching user cart:", error);
+    }
+  };
+  
+  const fetchUserWishlist = async () => {
+    try {
+      const fetchedUserWistlist = await getAllWishListItemsByUserId(userObj.id);
+    updateWishlist(fetchedUserWistlist.updatedWishlistItems);  // Update the cart count and items in context
+
+    } catch (error) {
+      console.error("Error fetching user wishtlist:", error);
+    }
+  };
+
+  const handleAddToCart = async (prod) => {
+    try {
+      if (!cartItems.some(item => item.id === prod.id)) {
+        const cartItemId = await addToCart(userObj.id, prod.id, 1);
+        const updatedProd = { ...prod, cartItemId };
+        const updatedCart = [...cartItems, updatedProd];
+        sessionStorage.setItem('product', JSON.stringify(updatedCart));
+        sessionStorage.setItem('cartCount', updatedCart.length);
+        updateCart(updatedCart);  // Update the cart count and items in context
+        fetchUserCart();
+      }
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+    }
+  };
+  
+  
+  const handleRemoveFromCart = async (prod) => {
+    const updatedCart = cartItems.filter(item => item.id !== prod.id);
+    updateCart(updatedCart);
+    await removeFromCart(prod.id,false);
+    fetchUserCart();
+    sessionStorage.setItem('product', JSON.stringify(updatedCart));
+    sessionStorage.setItem('cartCount', JSON.stringify(updatedCart.length));
+  };
+
+  const handleAddToWishlist = async (prod) => {
+    try {
+      if (!wishlistItems.some(item => item.id === prod.id)) {
+        const wishlistItemId = await addToWishlist(userObj.id, prod.id);
+        const updatedProd = { ...prod, wishlistItemId };
+        const updatedWishlist = [...wishlistItems, updatedProd];
+        sessionStorage.setItem('Wishlist', JSON.stringify(updatedWishlist));
+        sessionStorage.setItem('WishlistCount', updatedWishlist.length);
+        updateWishlist(updatedWishlist);  // Update the cart count and items in context
+        fetchUserWishlist();
+        setBuyNow(true);
+        setBuyNowProduct(updatedProd)
+      }
+    } catch (error) {
+      console.error("Error adding product to wishlist:", error);
+    }
+  };
+  
+  
+  const handleRemoveFromWishlist = async (prod) => {
+    const updatedWishlist = wishlistItems.filter(item => item.id !== prod.id);
+    updateWishlist(updatedWishlist);
+    await removeFromWishlist(prod.id,false);
+    fetchUserWishlist();
+    sessionStorage.setItem('Wishlist', JSON.stringify(updatedWishlist));
+    sessionStorage.setItem('WishlistCount', JSON.stringify(updatedWishlist.length));
+  };
+  
+
+  const isInCart = (prod) => {
+    return cartItems.some(item => item.id === prod.id);
+  };
+
+  const isInWishList = (prod) => {
+    return wishlistItems.some(item => item.id === prod.id);
+  };
+
+
+
   return (
     <div>
+     {isBuyNow ? (
+        <CartStepper isBuyNow={true}  buyNowProduct={buyNowProduct}/>
+      ) : (
       <Container fluid className="py-4">
         {/* Search Box */}
         <Row>
@@ -103,6 +208,37 @@ const ShowAllProducts = () => {
                         borderTopRightRadius: "8px",
                       }}
                     />
+                     <IconButton
+                    onClick={() =>
+                      isInCart(prod) ? handleRemoveFromCart(prod) : handleAddToCart(prod)
+                    }
+                    style={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      color: "#fff",
+                    }}
+                    title='Add to cart'
+                  >
+                    {isInCart(prod) ? <RemoveShoppingCartIcon /> : <ShoppingCartIcon />}
+                  </IconButton>
+                  <IconButton
+                    onClick={() =>
+                      isInWishList(prod) ? handleRemoveFromWishlist(prod) : handleAddToWishlist(prod)
+                    }
+                    style={{
+                      position: "absolute",
+                      top: 50,
+                      right: 10,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      color: "#fff",
+                    }}
+                    title='Add to wishlist'
+                  >
+                    {isInWishList(prod) ? <FavoriteBorderIcon /> : <FavoriteIcon />}
+                  </IconButton>
+                
                   </div>
 
                   <div className="card-body text-center">
@@ -144,8 +280,10 @@ const ShowAllProducts = () => {
                       color="secondary"
                       size="small"
                       style={{ marginTop: "10px" }}
-                      onClick={() => console.log(`Buy Now: ${prod.name}`)}
-                    >
+                      onClick={() => 
+                        isInWishList(prod) ? handleRemoveFromWishlist(prod) : handleAddToWishlist(prod)
+                      }
+                      >
                       Buy Now
                     </Button>
                   </div>
@@ -157,6 +295,7 @@ const ShowAllProducts = () => {
           <Typography>No products available.</Typography>
         )}
       </Container>
+      )}
     </div>
   );
 };

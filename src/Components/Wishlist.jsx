@@ -85,8 +85,6 @@ const Wishlist = () => {
   }, []);
 
   const handleBuyNow = (product) => {
-    // Optionally pass product data to the next page via state
-    // setAnchorEl('/customer-dashboard/Cart');
     setBuyNow(true);
     setBuyNowProduct(product)
   };
@@ -94,7 +92,7 @@ const Wishlist = () => {
   return (
     <div>
       {isBuyNow ? (
-        <CartStepper isBuyNow={true}  buyNowProduct={buyNowProduct}/>
+        <CartStepper isBuyNow={true}  buyNowProduct={buyNowProduct} />
       ) : (
         <Container fluid className="py-4">
           {Array.isArray(wishlistItems) && wishlistItems.length > 0 ? (

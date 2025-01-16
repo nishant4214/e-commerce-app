@@ -1,7 +1,5 @@
-// CartContext.js
 import React, { createContext, useState, useContext } from 'react';
 import getAllCartItemsByUserId from './netlify/getAllCartItemsByUserId';
-// Create the Context
 const CartContext = createContext();
 
 export const useCart = () => {
@@ -18,14 +16,13 @@ export const CartProvider = ({ children }) => {
   const fetchUserCart = async () => {
     try {
       const fetchedUserCart = await getAllCartItemsByUserId(userObj.id);
-        
       sessionStorage.setItem('product', JSON.stringify(fetchedUserCart.updatedCartItems));
       sessionStorage.setItem('cartCount', fetchedUserCart.updatedCartItems.length);
-
     } catch (error) {
       console.error("Error fetching user cart:", error);
     }
   };
+  
   const updateCart = (updatedCartItems) => {
     fetchUserCart();
     const newCartCount = updatedCartItems.length;

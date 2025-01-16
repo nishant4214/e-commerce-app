@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react'; // Import QRCodeCanvas
 import createOrder from '../netlify/createOrder';
 
-const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress,isBuyNow,productId }) => {
+const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress,isBuyNow,productId,file_id }) => {
   const [amount, setAmount] = useState(amountProps);
   const payeeName = 'Nishant Sudam Pande'; // Payee name
   const upiID = 'nishant.pande123-3@okaxis'; // UPI ID
@@ -31,8 +31,22 @@ const PaymentComponent = ({ amountProps, cgst, sgst,shippingAddress,isBuyNow,pro
    // Handle form submission of transaction ID
   const handleSubmitTransactionId = async () => {
     if (transactionId) {
-      const  uniqueOrderNumber = await createOrder(userObj.id, cgst, sgst, amountProps, shippingAddress, transactionId, isBuyNow,productId);
 
+      alert(file_id)
+      const  uniqueOrderNumber = await createOrder(userObj.id, cgst, sgst, amountProps, shippingAddress, transactionId, isBuyNow,productId,file_id);
+      console.log(userObj.id, cgst, sgst, amountProps, shippingAddress, transactionId, isBuyNow,productId,file_id)
+      console.log( JSON.stringify({
+        customer_id: Number(userObj.id),
+        address_id: Number(shippingAddress),
+        total_amount: amountProps,
+        cgst,
+        sgst,
+        transaction_id: transactionId,
+        order_number: uniqueOrderNumber,
+        buynow: isBuyNow,
+        product_id_ref : Number(productId),
+        file_id_ref: file_id
+    }))
       if(!uniqueOrderNumber){
         alert(`error submitting order: ${transactionId}`);
         return;

@@ -128,7 +128,6 @@ const AddBillingForm = () => {
     if (!authToken) {
       throw new Error('No authentication token available');
     }
-    console.log(selectedCustomer);
     // if (!bill.customerName || !bill.contactNumber || !bill.email || !bill.productId || Number(bill.quantity) <= 0) {
     if (!selectedCustomer.customerName || !selectedCustomer.customerName || !selectedCustomer.customerEmail || !bill.productId || Number(bill.quantity) <= 0) {
       console.log('Form validation failed');

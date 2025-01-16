@@ -11,7 +11,7 @@ const getAllCartItemsByUserId = async (userId) => {
     try {
       const { data: cart_items, error } = await supabase
         .from('cart_items')
-        .select('*, products(id, name, price, image_url, description)')
+        .select('*, products(id, name, price, image_url, description, categories(*))')
         .eq('user_id', userId)
         .eq('isactive', true);
   

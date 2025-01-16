@@ -151,7 +151,6 @@ const NAVIGATION = [
 
   useEffect(() => {
     if (Array.isArray(orders)) {
-      console.log(orders);
       const hasPendingReviews = orders.some((order) =>
         order.order_items.some((product) => product.is_reviewed === false)
       );
@@ -181,7 +180,6 @@ const NAVIGATION = [
   const handleFeedbackSubmit = (feedbackData) => {
     fetchProducts();
   };
-  
   
   return (
     <AppProvider
